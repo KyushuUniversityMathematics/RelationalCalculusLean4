@@ -1,0 +1,13 @@
+{
+  "name": "Lean4 Dev",
+  "image": "leanprovercommunity/lean4:latest",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "leanprover.lean4",
+        "github.vscode-pull-request-github"
+      ]
+    }
+  },
+  "postCreateCommand": "lake update && lake build"
+}

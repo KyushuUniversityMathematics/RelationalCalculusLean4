@@ -1,0 +1,10 @@
+name = "RelationalCalculus"
+version = "0.1.0"
+defaultTargets = ["relationalcalculus"]
+
+[[lean_lib]]
+name = "RelationalCalculus"
+
+[[lean_exe]]
+name = "relationalcalculus"
+root = "Main"
