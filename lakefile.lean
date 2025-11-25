@@ -18,3 +18,6 @@ lean_lib dedekind_formula where
 lean_lib domain where
 lean_lib sum_product where
 lean_lib point where
+lean_lib conjugate where
+lean_lib residual where
+lean_lib cantor where

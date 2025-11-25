@@ -1,5 +1,5 @@
 import Bernstein
-
+import sum_product
 
 
 
@@ -145,3 +145,72 @@ theorem finit_le_finit : is_finite Y → card_le X Y → is_finite X:= by
   assumption
 
 end shroder_cardinal
+
+section sum
+variable [c : Dedekind_sum]
+theorem sum_card_le1 : card_le X (X + Y) := by
+  exists (in_l X Y)
+  apply inl_injective
+theorem sum_card_le2 : card_le Y (X + Y) := by
+  exists (in_r X Y)
+  apply inr_injective
+theorem sum_card_eq : card_eq (X + Y) (Y + X) := by
+  exists (in_l X Y# ∘ in_r Y X ⊔ (in_r X Y# ∘ in_l Y X))
+  constructor
+  · simp
+  · simp
+    rw[cup_comm]
+    simp
+theorem sum_finite : is_finite X → is_finite Y → is_finite (X + Y) := by
+  rw[is_finite, is_finite, is_finite]
+  intro HX HY f ⟨Hf, Hf'⟩
+  rw[is_injective] at Hf
+  let f1 := (in_l X Y) ∘ f ∘ in_l X Y#
+
+  let f2 := (in_r X Y)# ∘ f ∘ in_r X Y
+  have Hf1 : is_injective f1 := by
+    rw[is_injective]
+    constructor
+    · dsimp[f1]
+      simp
+      conv =>
+        lhs; lhs; lhs; lhs
+        rw[← comp_assoc, inl_left_inverse]
+        simp
+      conv =>
+        lhs; rhs; lhs; lhs
+        rw[← inv_invol (_ ∘ _), comp_inv, inv_invol, inl_left_inverse]
+      simp
+    · dsimp[f1]
+      simp
+      rw[inv_diagonal complement'_le_id]
+      conv =>
+        lhs; lhs; lhs; rhs; lhs; lhs; rw[← inv_invol (_ ∘ _), comp_inv, inv_invol, inl_left_inverse]
+      conv =>
+        lhs; lhs; rhs; rw[← comp_assoc, inl_left_inverse]
+      simp
+      rw[comp_diagonal complement'_le_id, ← complement'_cup_id _ (inl_right_complement)]
+      apply cup_inc_compat_r
+      apply comp_inc_compat_ab_a'b
+      rw[← comp_assoc, ← comp_assoc, ← comp_assoc]
+      apply comp_inc_compat_ab_a
+      conv => lhs; rhs; rw[comp_assoc, inl_left_inverse]
+      simp
+      exact Hf.left
+  have Hf2 : is_injective f2 := by
+    rw[is_injective]
+    constructor
+    · dsimp[f2]
+      simp
+      conv =>
+        lhs; lhs; lhs; lhs
+        rw[← comp_assoc, inr_right_inverse]
+        simp
+      conv =>
+        lhs; rhs; lhs; lhs
+        rw[← inv_invol (_ ∘ _), comp_inv, inv_invol, inr_right_inverse]
+      simp
+    · dsimp[f2]
+      simp
+      rw[inv_diagonal complement'_le_id]
+      conv =>

@@ -1,11 +1,8 @@
-class Quiver where
+class PreCategory where
   ob  : Type u
   rel : ob → ob → Type v
-
-class PreCategory extends Quiver where
-  id    : (X : ob) → (rel X X)
+  id  : (X : ob) → (rel X X)
   comp  : (rel X Y) → (rel Y Z) → (rel X Z)
-
 infixl:80 " ∘ " => PreCategory.comp
 
 class Category extends PreCategory where
@@ -42,6 +39,8 @@ def complement [c : Dedekind_Notations]{X Y:c.ob}(f : c.rel X Y) := f ⇒ φ X Y
 postfix:120 " ⁻ " => complement
 
 class Dedekind extends Dedekind_Notations where
+    exists_ob : ob
+    exists_notzero : ∃ X, idr X ≠ φ X X
     inc_refl (f:rel X Y) : f ⊑ f
     inc_trans {f g h : rel X Y} : inc f g → inc g h → inc f h
     inc_antisym {f g : rel X Y}: f ⊑ g → g ⊑ f → f = g

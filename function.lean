@@ -151,12 +151,12 @@ theorem total_inc : is_total f → f ⊑ g → is_total g := by
   rw[is_total, is_total]
   intro H H0
   apply inc_trans H
-  apply comp_inc_compat _ _ _ _ H0 (inc_inv.mpr H0)
+  apply comp_inc_compat  H0 (inc_inv.mpr H0)
 theorem univalent_inc : is_univalent g → f ⊑ g → is_univalent f := by
   rw[is_univalent, is_univalent]
   intro H H0
   apply inc_trans _ H
-  apply comp_inc_compat _ _ _ _ (inc_inv.mpr H0) H0
+  apply comp_inc_compat (inc_inv.mpr H0) H0
 theorem function_inc {f:c.rel X Y} {g:c.rel X Y} :
   is_function f → is_function g → f ⊑ g → f = g := by
   rw[is_function, is_function]
@@ -182,14 +182,14 @@ theorem function_capP_distr {f:c.rel X Y}{g:c.rel W Z} {P : c.rel A B → Prop}{
   is_function f → is_function g → (f ∘ capP P α) ∘ g# = capP P (fun x => (f ∘ (α x)) ∘ g#) := by
   rw[is_function, is_function]
   intro ⟨H, H0⟩ ⟨H1, H2⟩
-  apply inc_antisym (comp_capP_distr _ _ _ _)
+  apply inc_antisym comp_capP_distr
   apply inc_trans (comp_inc_compat_b_ab H)
   rw[← comp_assoc, ← comp_assoc]
   apply comp_inc_compat_ab_ab'
   apply inc_trans (comp_inc_compat_a_ab H1)
   rw[comp_assoc]
   apply comp_inc_compat_ab_a'b
-  apply inc_trans (comp_capP_distr _ _ _ _)
+  apply inc_trans comp_capP_distr
   rw[inc_capP]
   intro h H3
   apply inc_trans _ (comp_inc_compat_ab_b H0)

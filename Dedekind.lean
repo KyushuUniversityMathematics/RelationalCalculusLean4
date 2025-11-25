@@ -49,13 +49,13 @@ theorem inc_rpc {f g h : c.rel X Y} : f ⊑ g ⇒ h ↔ f ⊓ g ⊑ h := @c.inc_
 theorem inc_residual {f : c.rel X Y}{g : c.rel Y Z}{h : c.rel X Z} : h ⊑ f ▹ g ↔ f# ∘ h ⊑ g := @c.inc_redidual X Y Z f g h
 end Axioms
 section basic_lemmas
-@[simp] theorem cap_l (f g : c.rel X Y) : f ⊓ g ⊑ f :=
+@[simp] theorem cap_l {f g : c.rel X Y} : f ⊓ g ⊑ f :=
   (c.inc_cap.mp (c.inc_refl (f ⊓ g))).left
-@[simp] theorem cap_r (f g : c.rel X Y) : f ⊓ g ⊑ g :=
+@[simp] theorem cap_r {f g : c.rel X Y} : f ⊓ g ⊑ g :=
   (c.inc_cap.mp (c.inc_refl (f ⊓ g))).right
-@[simp] theorem cup_l (f g : c.rel X Y) : f ⊑ f ⊔ g :=
+@[simp] theorem cup_l {f g : c.rel X Y} : f ⊑ f ⊔ g :=
   (c.inc_cup.mp (c.inc_refl (f ⊔ g))).left
-@[simp] theorem cup_r (f g : c.rel X Y) : g ⊑ f ⊔ g :=
+@[simp] theorem cup_r {f g : c.rel X Y} : g ⊑ f ⊔ g :=
   (c.inc_cup.mp (c.inc_refl (f ⊔ g))).right
 theorem inc_def1l : f = f ⊓ g ↔ f ⊑ g := by
   apply Iff.intro
@@ -123,32 +123,32 @@ theorem inc_def2r : g = f ⊔ g ↔ f ⊑ g := by
   apply c.inc_antisym
   · apply c.inc_cup.mpr
     constructor
-    · exact c.inc_trans (cup_l f g) (cup_l (f ⊔ g) h)
+    · exact c.inc_trans cup_l cup_l
     · apply c.inc_cup.mpr
       constructor
-      · exact c.inc_trans (cup_r f g) (cup_l (f ⊔ g) h)
-      · exact cup_r (f ⊔ g) h
+      · exact c.inc_trans cup_r cup_l
+      · exact cup_r
   · apply c.inc_cup.mpr
     constructor
     · apply c.inc_cup.mpr
       constructor
       · apply cup_l
-      · exact c.inc_trans (cup_l g h) (cup_r f (g ⊔ h))
-    · exact c.inc_trans (cup_r g h) (cup_r f (g ⊔ h))
+      · exact c.inc_trans cup_l cup_r
+    · exact c.inc_trans cup_r cup_r
 theorem cap_comm (f g:c.rel X Y): f ⊓ g = g ⊓ f := by
   apply c.inc_antisym
   · apply c.inc_cap.mpr
     constructor
-    · exact cap_r f g
-    · exact cap_l f g
+    · exact cap_r
+    · exact cap_l
   · apply c.inc_cap.mpr
     constructor
-    · exact cap_r g f
-    · exact cap_l g f
+    · exact cap_r
+    · exact cap_l
 theorem cup_comm (f g:c.rel X Y): f ⊔ g = g ⊔ f := by
   apply c.inc_antisym
-  · exact c.inc_cup.mpr ⟨cup_r g f, cup_l g f⟩
-  · exact c.inc_cup.mpr ⟨cup_r f g, cup_l f g⟩
+  · exact c.inc_cup.mpr ⟨cup_r, cup_l⟩
+  · exact c.inc_cup.mpr ⟨cup_r, cup_l⟩
 @[simp] theorem cup_cap_abs (f g:c.rel X Y): f ⊔ (f ⊓ g) = f := by
   apply c.inc_antisym
   · apply c.inc_cup.mpr
@@ -169,7 +169,7 @@ theorem cup_comm (f g:c.rel X Y): f ⊔ g = g ⊔ f := by
   · apply c.inc_cup.mpr
     simp
   · simp
-theorem cap_inc_compat (f f' g g':c.rel X Y) :
+theorem cap_inc_compat {f f' g g':c.rel X Y} :
   f ⊑ f' → g ⊑ g' → f ⊓ g ⊑ f' ⊓ g' := by
   intro H H'
   apply c.inc_cap.mpr
@@ -180,19 +180,19 @@ theorem cap_inc_compat (f f' g g':c.rel X Y) :
   · apply c.inc_trans
     apply cap_r
     apply H'
-theorem cap_inc_compat_l (f g g':c.rel X Y) :
+theorem cap_inc_compat_l {f g g':c.rel X Y} :
   g ⊑ g' → f ⊓ g ⊑ f ⊓ g' := by
   intro H
   apply cap_inc_compat
   simp
   apply H
-theorem cap_inc_compat_r (f f' g:c.rel X Y) :
+theorem cap_inc_compat_r {f f' g:c.rel X Y} :
   f ⊑ f' → f ⊓ g ⊑ f' ⊓ g := by
   intro H
   apply cap_inc_compat
   apply H
   simp
-theorem cup_inc_compat (f f' g g':c.rel X Y) :
+theorem cup_inc_compat {f f' g g':c.rel X Y} :
   f ⊑ f' → g ⊑ g' → f ⊔ g ⊑ f' ⊔ g' := by
   intro H H'
   apply c.inc_cup.mpr
@@ -203,7 +203,7 @@ theorem cup_inc_compat (f f' g g':c.rel X Y) :
   · apply c.inc_trans
     apply H'
     apply cup_r
-theorem cup_inc_compat_l (f g g':c.rel X Y) :
+theorem cup_inc_compat_l {f g g':c.rel X Y} :
   g ⊑ g' → f ⊔ g ⊑ f ⊔ g' := by
   intro H
   apply cup_inc_compat
@@ -265,7 +265,7 @@ theorem inc_upper {f g:c.rel X Y} :
       apply c.inc_refl
     · apply (H f).mp
       apply c.inc_refl
-theorem cap_cup_distr_l (f g h:c.rel X Y) :
+theorem cap_cup_distr_l {f g h:c.rel X Y} :
   f ⊓ (g ⊔ h) = (f ⊓ g) ⊔ (f ⊓ h) := by
   apply inc_upper.mpr
   intro a
@@ -276,20 +276,20 @@ theorem cap_cup_distr_l (f g h:c.rel X Y) :
   · intro H
     rw[cap_comm , cap_comm f h, c.inc_cup, ← c.inc_rpc, ← c.inc_rpc, ← c.inc_cup, c.inc_rpc, cap_comm] at H
     apply H
-theorem cap_cup_distr_r (f g h:c.rel X Y) :
+theorem cap_cup_distr_r {f g h:c.rel X Y} :
   (f ⊔ g) ⊓ h = (f ⊓ h) ⊔ (g ⊓ h) := by
   repeat rw[cap_comm _ h]
   apply cap_cup_distr_l
-theorem cup_cap_distr_l (f g h:c.rel X Y) :
+theorem cup_cap_distr_l {f g h:c.rel X Y} :
   f ⊔ (g ⊓ h) = (f ⊔ g) ⊓ (f ⊔ h) := by
   rw[cap_cup_distr_l]
   conv  => rhs;rw[cap_comm, cap_cup_abs]
   rw[cap_cup_distr_r, cup_assoc, cup_cap_abs]
-theorem cup_cap_distr_r (f g h:c.rel X Y) :
+theorem cup_cap_distr_r {f g h:c.rel X Y} :
   (f ⊓ g) ⊔ h = (f ⊔ h) ⊓ (g ⊔ h) := by
   repeat rw[cup_comm _ h]
   apply cup_cap_distr_l
-theorem cap_cup_unique (f g h:c.rel X Y) :
+theorem cap_cup_unique {f g h:c.rel X Y} :
   f ⊓ g = f ⊓ h → f ⊔ g = f ⊔ h → g = h := by
   intro H1 H2
   rw[← cup_cap_abs g f, cap_comm, H1, cup_cap_distr_l, cup_comm, H2, cup_comm, cup_comm g h, ← cup_cap_distr_l, H1, cap_comm, cup_cap_abs]
@@ -513,7 +513,7 @@ theorem capP_False (P:c.rel X Y → Prop)(α : c.rel X Y → c.rel Z W) : (∀ f
     intro f H'
     rw[H f] at H'
     contradiction
-theorem comp_inc_compat (f f':c.rel X Y) (g g':c.rel Y Z) :
+theorem comp_inc_compat {f f':c.rel X Y} {g g':c.rel Y Z} :
   f ⊑ f' → g ⊑ g' → f ∘ g ⊑ f' ∘ g' := by
   intro H H'
   apply inc_trans
@@ -744,7 +744,7 @@ theorem inv_inc_move {f:c.rel X Y}{g:c.rel Y X} :
     simp
   · rw[← inc_inv, ← inv_inc_move]
     simp
-@[simp] theorem inv_universal : (Δ X Y)# = Δ Y X := by
+@[simp] theorem inv_universal (X Y : c.ob) : (Δ X Y)# = Δ Y X := by
   apply c.inc_antisym
   · simp
   · rw[inv_inc_move]
@@ -798,7 +798,7 @@ apply inc_antisym
   conv => lhs; rhs; rw[← inv_invol f]
   rw[← inv_cap_distr, ← inv_inc_move, cap_comm, cap_complement_empty]
   simp
-theorem comp_cupP_distr_l (f:c.rel X Y) (P : c.rel W A → Prop)(α : c.rel W A → c.rel Y Z) :
+theorem comp_cupP_distr_l {f:c.rel X Y} {P : c.rel W A → Prop} {α : c.rel W A → c.rel Y Z} :
   f ∘ (cupP P α) = cupP P (fun x => f ∘ (α x)) := by
   apply inc_upper.mpr
   intro h
@@ -815,14 +815,14 @@ theorem comp_cupP_distr_l (f:c.rel X Y) (P : c.rel W A → Prop)(α : c.rel W A 
     rw[inc_residual, inv_invol f]
     rw[inc_cupP] at H
     apply H _ H0
-theorem comp_cupP_distr_r (P : c.rel X Y → Prop)(α : c.rel X Y → c.rel Z W) (g:c.rel W A) :
+theorem comp_cupP_distr_r {P : c.rel X Y → Prop} {α : c.rel X Y → c.rel Z W} {g:c.rel W A} :
   (cupP P α) ∘ g = cupP P (fun x => (α x) ∘ g) := by
   rw[← inv_invol (_∘ g), ← inv_move, comp_inv, inv_cupP_distr, inv_cupP_distr, comp_cupP_distr_l]
   apply inc_upper.mpr
   intro h
   rw[inc_cupP, inc_cupP]
   simp
-@[simp] theorem comp_cup_distr_l (f:c.rel X Y) (g g':c.rel Y Z) :
+@[simp] theorem comp_cup_distr_l {f:c.rel X Y} {g g':c.rel Y Z} :
   f ∘ (g ⊔ g') = (f ∘ g) ⊔ (f ∘ g') := by
   apply inc_upper.mpr
   intro h
@@ -842,28 +842,28 @@ theorem comp_cupP_distr_r (P : c.rel X Y → Prop)(α : c.rel X Y → c.rel Z W)
       rw[inc_residual]
       apply inc_trans _ H
       simp
-@[simp] theorem comp_cup_distr_r (f f':c.rel X Y) (g:c.rel Y Z) :
+@[simp] theorem comp_cup_distr_r {f f':c.rel X Y} {g:c.rel Y Z} :
   (f ⊔ f') ∘ g = (f ∘ g) ⊔ (f' ∘ g) := by
   rw[← inv_invol f, ← inv_invol f', ← inv_invol g, ← inv_cup_distr, ← comp_inv, comp_cup_distr_l]
   simp
-theorem comp_capP_distr (f:c.rel X Y)(g:c.rel Z W) (P : c.rel A B → Prop)(α : c.rel A B → c.rel Y Z) :
+theorem comp_capP_distr {f:c.rel X Y}{g:c.rel Z W} {P : c.rel A B → Prop} {α : c.rel A B → c.rel Y Z} :
   (f ∘ capP P α) ∘ g ⊑ capP P (fun x => (f ∘ (α x)) ∘ g) := by
   rw[inc_capP]
   intro h H
   apply comp_inc_compat_ab_a'b
   apply comp_inc_compat_ab_ab'
   apply capP_inc H
-theorem comp_capP_distr_l (f:c.rel X Y) (P : c.rel A B → Prop)(α : c.rel A B → c.rel Y Z) :
+theorem comp_capP_distr_l {f:c.rel X Y} {P : c.rel A B → Prop} {α : c.rel A B → c.rel Y Z} :
   f ∘ capP P α ⊑ capP P (fun x => f ∘ (α x)) := by
-  have H := comp_capP_distr f (idr Z) P α
+  have H := @comp_capP_distr _ _ _ _ _ _ _ f (idr Z) P α
   simp at H
   assumption
-theorem comp_capP_distr_r (g:c.rel Y Z) (P : c.rel A B → Prop)(α : c.rel A B → c.rel X Y) :
+theorem comp_capP_distr_r {g:c.rel Y Z} {P : c.rel A B → Prop} {α : c.rel A B → c.rel X Y} :
   capP P α ∘ g ⊑ capP P (fun x => (α x) ∘ g) := by
-  have H := comp_capP_distr (idr X) g P α
+  have H := @comp_capP_distr _ _ _ _ _ _ _ (idr X) g P α
   simp at H
   assumption
-@[simp] theorem comp_cap_distr (f:c.rel X Y) (g g':c.rel Y Z)(h:c.rel Z W) :
+@[simp] theorem comp_cap_distr {f:c.rel X Y} {g g':c.rel Y Z}{h:c.rel Z W} :
   (f ∘ (g ⊓ g')) ∘ h ⊑ ((f ∘ g) ∘ h) ⊓ (f ∘ g') ∘ h := by
   apply inc_cap.mpr
   constructor
@@ -872,14 +872,14 @@ theorem comp_capP_distr_r (g:c.rel Y Z) (P : c.rel A B → Prop)(α : c.rel A B 
     apply comp_inc_compat_ab_ab'
     apply comp_inc_compat_ab_a'b
     simp
-@[simp] theorem comp_cap_distr_l (f:c.rel X Y) (g g':c.rel Y Z) :
+@[simp] theorem comp_cap_distr_l {f:c.rel X Y} {g g':c.rel Y Z} :
   f ∘ (g ⊓ g') ⊑ (f ∘ g) ⊓ (f ∘ g') := by
-  have H := comp_cap_distr f g g' (idr Z)
+  have H := @comp_cap_distr _ _ _ _ _ f g g' (idr Z)
   simp at H
   assumption
-@[simp] theorem comp_cap_distr_r (f f':c.rel X Y) (g:c.rel Y Z) :
+@[simp] theorem comp_cap_distr_r {f f':c.rel X Y} {g:c.rel Y Z} :
   (f ⊓ f') ∘ g ⊑ (f ∘ g) ⊓ (f' ∘ g) := by
-  have H := comp_cap_distr (idr X) f f' g
+  have H := @comp_cap_distr _ _ _ _ _ (idr X) f f' g
   simp at H
   assumption
 @[simp] theorem comp_empty_r (f:c.rel X Y) : f ∘ φ Y Z = φ X Z := by

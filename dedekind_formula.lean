@@ -31,7 +31,7 @@ theorem dedekind_universal1 {f:c.rel Y Z}: (Δ X Z ∘ f#) ∘ f = Δ X Y ∘ f 
 theorem dedekind_universal2b {f:c.rel X Y}: Δ Z Z ∘ g ⊑ Δ Z X ∘ f → g ⊑ (g ∘ f#) ∘ f := by
   intro H
   apply inc_trans (inc_cap.mpr ⟨inc_refl _, comp_inc_compat_b_ab (inc_universal _)⟩)
-  apply inc_trans (cap_inc_compat_l _ _ _ H)
+  apply inc_trans (cap_inc_compat_l H)
   rw[cap_comm]
   apply inc_trans dedekind2
   apply comp_inc_compat_ab_a'b
@@ -46,7 +46,7 @@ theorem comp_diagonal_cap {f g:c.rel X X}: f ⊑ idr X → g ⊑ idr X → f ∘
     · apply comp_inc_compat_ab_b H
   · have H1 : f ⊓ g ⊑ idr X := by
       rw[← cap_idem (idr X)]
-      apply cap_inc_compat _ _ _ _ H H0
+      apply cap_inc_compat H H0
     rw[← comp_diagonal H1]
     apply comp_inc_compat
     all_goals simp

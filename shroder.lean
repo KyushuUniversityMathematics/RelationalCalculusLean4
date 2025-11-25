@@ -53,8 +53,8 @@ theorem cup_to_rpc : f⁻ ⊔ g = (f ⇒ g) := by
     simp
   · rw[← cap_universal (f ⇒ g), ← complement_classic f, cap_cup_distr_l, cap_comm, rpc_l, inc_cup]
     constructor
-    · apply inc_trans (cap_r _ _) (cup_r _ _)
-    · apply inc_trans (cap_r _ _) (cup_l _ _)
+    · apply inc_trans cap_r cup_r
+    · apply inc_trans cap_r cup_l
 theorem beta_contradiction : f ⇒ g ⊓ f ⇒ g⁻ = f⁻ := by
   rw[← cup_to_rpc, ← cup_to_rpc, ← cup_cap_distr_l, cap_complement_empty, cup_empty]
 theorem bool_lemma1 {f g : c.rel X Y} : f ⊑ g ↔ Δ X Y = f⁻ ⊔ g := by
@@ -75,22 +75,22 @@ theorem bool_lemma2 {f g : c.rel X Y} : f ⊑ g ↔ f ⊓ g⁻ = φ X Y := by
 theorem bool_lemma3 {f g : c.rel X Y} : f ⊑ g ⊔ h ↔ f ⊓ g⁻ ⊑ h := by
   constructor
   · intro H
-    apply inc_trans (cap_inc_compat_r _ _ _ H)
+    apply inc_trans (cap_inc_compat_r H)
     rw[cap_cup_distr_r, cap_complement_empty, empty_cup]
     simp
   · intro H
-    apply inc_trans _ (cup_inc_compat_l _ _ _ H)
+    apply inc_trans _ (cup_inc_compat_l H)
     rw[cup_cap_distr_l, complement_classic, cap_universal]
     simp
 theorem bool_lemma4 {f g : c.rel X Y} : f ⊑ g ⊔ h ↔ g⁻ ⊑ f⁻ ⊔ h := by
   rw[bool_lemma3]
   constructor
   · intro H
-    apply inc_trans _ (cup_inc_compat_l _ _ _ H)
+    apply inc_trans _ (cup_inc_compat_l H)
     rw[cup_cap_distr_l, cup_comm, complement_classic, universal_cap]
     simp
   · intro H
-    apply inc_trans (cap_inc_compat_l _ _ _ H)
+    apply inc_trans (cap_inc_compat_l H)
     rw[cap_cup_distr_l, cap_complement_empty, empty_cup]
     simp
 theorem bool_lemma5 {f g : c.rel X Y} : f ⊑ g ⊔ h ↔ Δ X Y = f⁻ ⊔ g ⊔ h := by
