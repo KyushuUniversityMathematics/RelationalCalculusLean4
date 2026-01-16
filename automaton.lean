@@ -13,10 +13,9 @@ def δstar {σ :Type}{Q : c.ob}(M : nfa σ Q)(l:List σ) : c.rel Q Q :=
   match l with
   | [] => idr Q
   | a::l' => M.δ a ∘ δstar M l'
-noncomputable def acceptRel {σ : Type} {Q : c.ob} (A : nfa σ Q) (l : List σ) : c.rel I I :=
-  (A.τ ∘ δstar A l) ∘ A.β
+noncomputable def acceptRel {σ : Type} {Q : c.ob} (A : nfa σ Q) (l : List σ)
+  : c.rel I I := (A.τ ∘ δstar A l) ∘ A.β
 
--- 任意：簡便な記法（不要なら削除）
 notation:90 A " ⟪" l "⟫" => acceptRel A l
 def accept {σ :Type}{Q : c.ob}(A : nfa σ Q)(l:List σ) :=
   A ⟪ l ⟫ = idr I
@@ -29,6 +28,7 @@ theorem δstar_append {σ :Type}{Q : c.ob}(M : nfa σ Q)(l1 l2:List σ) :
   | cons a l1' ih =>
     simp[δstar, ih, comp_assoc]
 end definition
+
 section cup
 noncomputable def cup_nfa {σ :Type}{Q Q' : c.ob}(M : nfa σ Q)(M' : nfa σ Q') : nfa σ (Q + Q') :=
   {
@@ -105,9 +105,9 @@ theorem inv_nfaP (l : List σ){Q : c.ob}(M : nfa σ Q) :
   rw[H]
   simp[inv_nfa]
 
-noncomputable def concat_nfa {σ :Type}{Q Q' : c.ob}(M : nfa σ Q)(M' : nfa σ Q') : nfa σ (Q + Q') :=
-  {
-    τ := M.τ ∘ in_l Q Q',
-    δ := fun a => in_l Q Q' ∘ M.δ a ⊔ (M.β ∘ M'.τ# ∘ M'.δ a),
-    β := in_r Q Q'# ∘ M'.β
-  }
+-- noncomputable def concat_nfa {σ :Type}{Q Q' : c.ob}(M : nfa σ Q)(M' : nfa σ Q') : nfa σ (Q + Q') :=
+--   {
+--     τ := M.τ ∘ in_l Q Q',
+--     δ := fun a => in_l Q Q' ∘ M.δ a ⊔ (M.β ∘ M'.τ# ∘ M'.δ a),
+--     β := in_r Q Q'# ∘ M'.β
+--   }

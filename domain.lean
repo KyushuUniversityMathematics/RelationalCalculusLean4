@@ -1,12 +1,12 @@
-import dedekind_formula
-import function
-import shroder
+import Dedekind_Formula
+import Function
+import Schroder
 
 section domain
 variable [c:Dedekind]
 def domain (f:c.rel X Y) := f ∘ f# ⊓ idr X
 
-theorem domain_diagonal {f:c.rel X Y}: domain f ⊑ idr X := by
+theorem domain_subid {f:c.rel X Y}: domain f ⊑ idr X := by
   simp[domain]
 theorem domain_def {f:c.rel X Y}: domain f = f ∘ Δ Y X ⊓ idr X := by
   rw[domain]
@@ -20,7 +20,7 @@ theorem domain_def {f:c.rel X Y}: domain f = f ∘ Δ Y X ⊓ idr X := by
       simp
     · simp
 @[simp]theorem domain_inv {f:c.rel X Y}: (domain f)# = domain f := by
-  rw[domain, inv_diagonal]
+  rw[domain, inv_subid]
   simp
 theorem domain_comp1 (f:c.rel X Y) : domain f ∘ f = f := by
   rw[domain]
@@ -51,7 +51,7 @@ theorem domain_inc_id {f:c.rel X X} : f ⊑ idr X ↔ domain f = f := by
   rw[domain]
   constructor
   · intro H
-    rw[inv_diagonal H, comp_diagonal H, ← inc_def1l.mpr H]
+    rw[inv_subid H, comp_subid H, ← inc_def1l.mpr H]
   · intro H
     rw[← H]
     simp
@@ -150,7 +150,7 @@ theorem comp_domain7 : is_univalent f → f ∘ domain g = domain (f ∘ g) ∘ 
 theorem comp_domain8 {f: c.rel X X}: f ⊑ idr X → domain (f ∘ g) = f ∘ domain g := by
   intro H
   apply inc_antisym
-  · rw[← cap_idem (domain (f ∘ g)), comp_diagonal_cap H domain_diagonal]
+  · rw[← cap_idem (domain (f ∘ g)), comp_subid_cap H domain_subid]
     apply cap_inc_compat
     · apply inc_trans comp_domain1
       rw[domain_inc_id.mp H]
@@ -213,7 +213,7 @@ theorem domain_universal2 {f:c.rel X Y}{g:c.rel Y Z} : f ∘ domain g = f ⊓ Δ
   apply inc_antisym
   · rw[inc_cap]
     constructor
-    · apply comp_inc_compat_ab_a (domain_diagonal)
+    · apply comp_inc_compat_ab_a (domain_subid)
     · apply inc_trans (comp_inc_compat_ab_ab' cap_l)
       rw[comp_assoc]
       apply comp_inc_compat_ab_a'b
@@ -224,7 +224,7 @@ theorem domain_universal2 {f:c.rel X Y}{g:c.rel Y Z} : f ∘ domain g = f ⊓ Δ
     apply inc_trans dedekind2
     apply comp_inc_compat_ab_a'b
     simp
-    apply comp_inc_compat_ab_a domain_diagonal
+    apply comp_inc_compat_ab_a domain_subid
 theorem domain_lemma1 : is_univalent f → is_univalent g → f ⊑ g → domain f = domain g → f = g := by
   rw[is_univalent, is_univalent]
   intro Hf Hg H H0

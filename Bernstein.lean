@@ -1,5 +1,5 @@
-import shroder
-import function
+import Schroder
+import Function
 open Classical
 
 section bernstein_dedekind
@@ -80,7 +80,7 @@ theorem complement'_empty : (φ X X)ᶜ = idr X := by
 theorem complement'_id : (idr X)ᶜ = φ X X := by
   rw[complement', cap_comm, cap_complement_empty]
 end bernstein_dedekind
-variable [c : Shroder]
+variable [c : Schroder]
 section Bernstein
 
 
@@ -147,24 +147,24 @@ theorem bernstein : (∃ f:c.rel X Y, is_injective f) → (∃ g : c.rel Y X, is
   rw[is_bijective]
   constructor
   · simp
-    rw[inv_diagonal complement'_le_id, inv_diagonal Hu, inv_diagonal complement'_le_id, inv_diagonal complement'_le_id]
-    rw[acomp_l (comp_diagonal complement'_le_id), acomp_l (comp_complement'_empty Hv), acomp_l (comp_complement'_empty2 Hv), acomp_l (comp_diagonal Hv)]
+    rw[inv_subid complement'_le_id, inv_subid Hu, inv_subid complement'_le_id, inv_subid complement'_le_id]
+    rw[acomp_l (comp_subid complement'_le_id), acomp_l (comp_complement'_empty Hv), acomp_l (comp_complement'_empty2 Hv), acomp_l (comp_subid Hv)]
     simp
     rw[← Hv']
     simp
     rw[acomp_l (Hf.left), acomp_l (Hf.left)]
     simp
-    rw[comp_diagonal Hu, comp_diagonal Hu]
+    rw[comp_subid Hu, comp_subid Hu]
     conv => lhs; rhs; lhs; rw[← comp_assoc, ← comp_assoc] ; rhs; rw[comp_assoc, Hu']
-    rw[comp_diagonal complement'_le_id, comp_diagonal complement'_le_id, complement'_cup_id _ Hu]
+    rw[comp_subid complement'_le_id, comp_subid complement'_le_id, complement'_cup_id _ Hu]
   · simp
-    rw[inv_diagonal complement'_le_id, inv_diagonal Hu, inv_diagonal complement'_le_id, inv_diagonal complement'_le_id]
-    rw[acomp_l (comp_diagonal complement'_le_id), acomp_l (comp_complement'_empty2 Hu), acomp_l (comp_complement'_empty Hu), acomp_l (comp_diagonal Hu)]
+    rw[inv_subid complement'_le_id, inv_subid Hu, inv_subid complement'_le_id, inv_subid complement'_le_id]
+    rw[acomp_l (comp_subid complement'_le_id), acomp_l (comp_complement'_empty2 Hu), acomp_l (comp_complement'_empty Hu), acomp_l (comp_subid Hu)]
     rw[← Hu']
     simp
     rw[acomp_l (Hg.left), acomp_l (Hg.left)]
     simp
-    rw[comp_diagonal Hv, comp_diagonal Hv]
+    rw[comp_subid Hv, comp_subid Hv]
     conv => lhs; lhs; lhs; rw[← comp_assoc, ← comp_assoc] ; rhs; rw[comp_assoc, Hv']
-    rw[comp_diagonal complement'_le_id, comp_diagonal complement'_le_id, cup_comm, complement'_cup_id _ Hv]
+    rw[comp_subid complement'_le_id, comp_subid complement'_le_id, cup_comm, complement'_cup_id _ Hv]
 end Bernstein

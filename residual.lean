@@ -1,6 +1,6 @@
 import Dedekind
-import shroder
-import dedekind_formula
+import Schroder
+import Dedekind_Formula
 section residual
 variable [c:Dedekind]
 theorem double_residual {X Y Z:c.ob}(f:c.rel X Y)(g:c.rel Y Z)(h:c.rel Z W):
@@ -148,7 +148,7 @@ end residual
 
 
 section residual_shroder
-variable [c:Shroder]
+variable [c:Schroder]
 theorem residual_complement {X Y Z:c.ob}(f:c.rel X Y)(g:c.rel Y Z):
   f ▹ g = (f ∘ g⁻)⁻ := by
   apply inc_lower.mpr

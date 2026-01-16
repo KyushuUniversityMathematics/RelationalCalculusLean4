@@ -289,6 +289,7 @@ theorem cup_cap_distr_r {f g h:c.rel X Y} :
   (f ⊓ g) ⊔ h = (f ⊔ h) ⊓ (g ⊔ h) := by
   repeat rw[cup_comm _ h]
   apply cup_cap_distr_l
+
 theorem cap_cup_unique {f g h:c.rel X Y} :
   f ⊓ g = f ⊓ h → f ⊔ g = f ⊔ h → g = h := by
   intro H1 H2
@@ -475,9 +476,9 @@ end basic_lemmas
 section relational_properties
 theorem rel_unique : φ X Y = Δ X Y → ∀ f g:c.rel X Y, f = g := by
   intro H f g
-  apply c.inc_antisym
+  apply inc_antisym
   all_goals(
-    apply c.inc_trans
+    apply inc_trans
     · apply inc_universal
     · rw[← H]
       simp)
@@ -758,7 +759,7 @@ theorem inv_inc_move {f:c.rel X Y}{g:c.rel Y X} :
       rw[← inv_invol (idr X)]
   rw[← comp_inv, ← inv_move]
   simp
-theorem inv_diagonal {f:c.rel X X} : f ⊑ idr X → f# = f := by
+theorem inv_subid {f:c.rel X X} : f ⊑ idr X → f# = f := by
   intro H
   have H0:= @dedekind c X X f X (idr X) (idr X)
   simp at H0
@@ -775,7 +776,7 @@ theorem inv_diagonal {f:c.rel X X} : f ⊑ idr X → f# = f := by
     apply comp_inc_compat_ab_a'b
     rw[← inc_inv, inv_id]
     assumption
-theorem comp_diagonal {f:c.rel X X} : f ⊑ idr X → f∘f = f := by
+theorem comp_subid {f:c.rel X X} : f ⊑ idr X → f∘f = f := by
   intro H
   have H0:= @dedekind c X X f X (idr X) (idr X)
   simp at H0
@@ -784,7 +785,7 @@ theorem comp_diagonal {f:c.rel X X} : f ⊑ idr X → f∘f = f := by
   · conv=> rhs; rw[← comp_id_r f]
     apply comp_inc_compat_ab_ab' H
   · rw[← inc_inv, inv_id] at H
-    rw[← inc_def1r.mpr H, inv_diagonal] at H0
+    rw[← inc_def1r.mpr H, inv_subid] at H0
     assumption
     rw[← inc_inv, inv_id]
     assumption

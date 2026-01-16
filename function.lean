@@ -1,4 +1,5 @@
-import Dedekind import Dedekind_Axioms
+import Dedekind
+import Dedekind_Axioms
 
 variable [c:Dedekind]
 def is_total (f:c.rel X Y) := idr X ⊑ f ∘ f#

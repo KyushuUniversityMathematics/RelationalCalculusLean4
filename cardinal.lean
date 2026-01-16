@@ -1,5 +1,5 @@
 import Bernstein
-import sum_product
+import Sum_Product
 
 
 
@@ -53,7 +53,7 @@ theorem infinite {f : c.rel X X} : is_injective f → ¬ is_bijective f → ¬ i
 end dedekind_cardinal
 
 section shroder_cardinal
-variable [s : Shroder]
+variable [s : Schroder]
 theorem card_bernstein {X Y : s.ob} :
   card_le X Y → card_le Y X → card_eq X Y := by
   rw[card_le, card_le, card_eq]
@@ -86,24 +86,24 @@ theorem finit_le_finit : is_finite Y → card_le X Y → is_finite X:= by
         simp
       conv =>
         lhs;lhs;lhs;rhs;lhs;lhs
-        rw[← inv_invol (_ ∘ _), comp_inv, inv_invol, inv_diagonal complement'_le_id, H]
+        rw[← inv_invol (_ ∘ _), comp_inv, inv_invol, inv_subid complement'_le_id, H]
       conv =>
         lhs;lhs;rhs
-        rw[inv_diagonal complement'_le_id, ← comp_assoc, H]
+        rw[inv_subid complement'_le_id, ← comp_assoc, H]
       conv =>
         lhs;rhs
-        rw[inv_diagonal complement'_le_id, comp_diagonal complement'_le_id]
+        rw[inv_subid complement'_le_id, comp_subid complement'_le_id]
       simp
       rw[complement'_cup_id _ Hg.right]
     · dsimp[h]
       simp
-      rw[inv_diagonal complement'_le_id]
+      rw[inv_subid complement'_le_id]
       conv =>
-        lhs; lhs; lhs; rhs; lhs; lhs; rw[← inv_invol (_ ∘ _), comp_inv, inv_invol, inv_diagonal complement'_le_id, H]
+        lhs; lhs; lhs; rhs; lhs; lhs; rw[← inv_invol (_ ∘ _), comp_inv, inv_invol, inv_subid complement'_le_id, H]
       conv =>
         lhs; lhs; rhs; rw[← comp_assoc, H]
       simp
-      rw[comp_diagonal complement'_le_id, ← complement'_cup_id _ Hg.right]
+      rw[comp_subid complement'_le_id, ← complement'_cup_id _ Hg.right]
       apply cup_inc_compat_r
       apply comp_inc_compat_ab_a'b
       rw[← comp_assoc, ← comp_assoc, ← comp_assoc]
@@ -132,7 +132,7 @@ theorem finit_le_finit : is_finite Y → card_le X Y → is_finite X:= by
     simp
     conv =>
       lhs; rhs
-      rw[inv_diagonal complement'_le_id, comp_diagonal complement'_le_id]
+      rw[inv_subid complement'_le_id, comp_subid complement'_le_id]
     conv =>
       lhs; lhs; rhs
       rw[← comp_assoc, H]
@@ -161,56 +161,4 @@ theorem sum_card_eq : card_eq (X + Y) (Y + X) := by
   · simp
     rw[cup_comm]
     simp
-theorem sum_finite : is_finite X → is_finite Y → is_finite (X + Y) := by
-  rw[is_finite, is_finite, is_finite]
-  intro HX HY f ⟨Hf, Hf'⟩
-  rw[is_injective] at Hf
-  let f1 := (in_l X Y) ∘ f ∘ in_l X Y#
-
-  let f2 := (in_r X Y)# ∘ f ∘ in_r X Y
-  have Hf1 : is_injective f1 := by
-    rw[is_injective]
-    constructor
-    · dsimp[f1]
-      simp
-      conv =>
-        lhs; lhs; lhs; lhs
-        rw[← comp_assoc, inl_left_inverse]
-        simp
-      conv =>
-        lhs; rhs; lhs; lhs
-        rw[← inv_invol (_ ∘ _), comp_inv, inv_invol, inl_left_inverse]
-      simp
-    · dsimp[f1]
-      simp
-      rw[inv_diagonal complement'_le_id]
-      conv =>
-        lhs; lhs; lhs; rhs; lhs; lhs; rw[← inv_invol (_ ∘ _), comp_inv, inv_invol, inl_left_inverse]
-      conv =>
-        lhs; lhs; rhs; rw[← comp_assoc, inl_left_inverse]
-      simp
-      rw[comp_diagonal complement'_le_id, ← complement'_cup_id _ (inl_right_complement)]
-      apply cup_inc_compat_r
-      apply comp_inc_compat_ab_a'b
-      rw[← comp_assoc, ← comp_assoc, ← comp_assoc]
-      apply comp_inc_compat_ab_a
-      conv => lhs; rhs; rw[comp_assoc, inl_left_inverse]
-      simp
-      exact Hf.left
-  have Hf2 : is_injective f2 := by
-    rw[is_injective]
-    constructor
-    · dsimp[f2]
-      simp
-      conv =>
-        lhs; lhs; lhs; lhs
-        rw[← comp_assoc, inr_right_inverse]
-        simp
-      conv =>
-        lhs; rhs; lhs; lhs
-        rw[← inv_invol (_ ∘ _), comp_inv, inv_invol, inr_right_inverse]
-      simp
-    · dsimp[f2]
-      simp
-      rw[inv_diagonal complement'_le_id]
-      conv =>
+end sum

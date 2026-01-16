@@ -1,8 +1,8 @@
 import Dedekind
-import shroder
-import function
-import domain
-import conjugate
+import Schroder
+import Function
+import Domain
+import Conjugate
 
 class Dedekind_sum extends Dedekind where
   sum_axiom : ∀ X Y : ob, ∃ Z : ob, ∃ (inl : rel X Z) (inr : rel Y Z),
@@ -291,7 +291,7 @@ theorem prod_fst_domain2 {f:c.rel X Y}{g:c.rel X Z} : (f × g) ∘ fst Y Z = f �
     simp[domain]
   · intro H
     apply inc_antisym
-    · apply comp_inc_compat_ab_b domain_diagonal
+    · apply comp_inc_compat_ab_b domain_subid
     · conv => lhs; rw[← domain_comp1 f]
       apply comp_inc_compat_ab_a'b H
 theorem prod_snd_domain1 {f:c.rel X Y}{g:c.rel X Z} : (f × g) ∘ snd Y Z = (domain f) ∘ g := by
@@ -320,12 +320,12 @@ theorem prod_snd_domain2 {f:c.rel X Y}{g:c.rel X Z} : (f × g) ∘ snd Y Z = g �
     simp[domain]
   · intro H
     apply inc_antisym
-    · apply comp_inc_compat_ab_b domain_diagonal
+    · apply comp_inc_compat_ab_b domain_subid
     · conv => lhs; rw[← domain_comp1 g]
       apply comp_inc_compat_ab_a'b H
 theorem prod_to_cap {f:c.rel X Y}{g:c.rel X Z} :
   domain (f × g) = domain f ⊓ domain g := by
-  rw[← comp_diagonal_cap domain_diagonal domain_diagonal, ← comp_domain3 (function_total snd_function), prod_snd_domain1, comp_domain8 domain_diagonal]
+  rw[← comp_subid_cap domain_subid domain_subid, ← comp_domain3 (function_total snd_function), prod_snd_domain1, comp_domain8 domain_subid]
 theorem prod_conjugate1 {f:c.rel X Y}{g:c.rel X Z} : is_function f → is_function g →
   (f × g) ∘ fst Y Z = f ∧ (f × g) ∘ snd Y Z = g := by
   intro ⟨Hf0, Hf1⟩ ⟨Hg0, Hg1⟩
@@ -339,12 +339,12 @@ theorem prod_conjugate2 {f:c.rel X (Y × Z)} : is_function f →
   intro H
   rw[rel_prod, ← comp_assoc, ← comp_assoc, ← function_cap_distr_l H]
   simp
-theorem diagonal_conjugate:
+theorem subid_conjugate:
   conjugate (fun _ => True) (fun f => f ⊑ idr (X×Y)) (fun f:c.rel X Y => domain ((fst X Y ∘ f) ⊓ snd X Y)) (fun g:c.rel (X×Y) (X×Y) => (fst X Y#∘ g) ∘ snd X Y) := by
   constructor
   · intro f _
     constructor
-    · simp[domain_diagonal]
+    · simp[domain_subid]
     · simp
       rw[cap_domain]
       apply inc_antisym
@@ -377,7 +377,7 @@ theorem diagonal_conjugate:
         apply inc_trans
         · apply cap_inc_compat_l
           apply comp_inc_compat_ab_a
-          rw[inv_diagonal Hg]
+          rw[inv_subid Hg]
           assumption
         · simp
       · conv => lhs; rw[inc_def1l.mpr Hg]
@@ -612,35 +612,35 @@ theorem sharpness {f:c.rel X Y}{h:c.rel W Y}{g:c.rel X Z}{k:c.rel W Z} :
             · rw[rational_comp]
               simp
 
-theorem diagonal_rational1 {f:c.rel X X}: f ⊑ idr X → rational1 f = rational2 f := by
+theorem subid_rational1 {f:c.rel X X}: f ⊑ idr X → rational1 f = rational2 f := by
   intro H
   apply inc_antisym
   · apply inc_trans (comp_inc_compat_b_ab (rational2_function f).left)
-    rw[← comp_assoc, ← inv_invol (_# ∘ _), comp_inv, inv_invol, rational_comp, inv_diagonal H]
+    rw[← comp_assoc, ← inv_invol (_# ∘ _), comp_inv, inv_invol, rational_comp, inv_subid H]
     apply comp_inc_compat_ab_a H
   · apply inc_trans (comp_inc_compat_b_ab (rational1_function f).left)
     rw[← comp_assoc, ← inv_invol (_# ∘ _), rational_comp, inv_invol]
     apply comp_inc_compat_ab_a H
-theorem diagonal_rational2 {f:c.rel X X}: f ⊑ idr X → rational1 f ∘ rational1 f# = idr (rational_ob f) := by
+theorem subid_rational2 {f:c.rel X X}: f ⊑ idr X → rational1 f ∘ rational1 f# = idr (rational_ob f) := by
   intro H
-  rw[← rational_cap_id f, ← diagonal_rational1 H]
+  rw[← rational_cap_id f, ← subid_rational1 H]
   simp
-theorem diagonal_rational3 {f:c.rel X X}: f ⊑ idr X → rational1 f# ∘ rational1 f = f := by
+theorem subid_rational3 {f:c.rel X X}: f ⊑ idr X → rational1 f# ∘ rational1 f = f := by
   intro H
-  conv => lhs; rhs; rw[diagonal_rational1 H]
+  conv => lhs; rhs; rw[subid_rational1 H]
   simp
 
 instance dedekindSum_of_rationality [c : Dedekind_rationality] : Dedekind_sub' where
   sub_axiom f H := by
     exists (rational_ob f), (rational1 f)
-    exact ⟨diagonal_rational3 H, diagonal_rational2 H, rational1_function f⟩
+    exact ⟨subid_rational3 H, subid_rational2 H, rational1_function f⟩
 
 noncomputable def ZERO := rational_ob (φ c.exists_ob c.exists_ob)
 notation "∅" => ZERO
 theorem zero_def : idr ∅ = φ ∅ ∅ := by
   dsimp[ZERO]
-  rw[← comp_id_r (idr _), ← diagonal_rational2 (inc_empty (idr c.exists_ob))]
+  rw[← comp_id_r (idr _), ← subid_rational2 (inc_empty (idr c.exists_ob))]
   simp
-  rw[acomp_l (diagonal_rational3 (inc_empty (idr c.exists_ob)))]
+  rw[acomp_l (subid_rational3 (inc_empty (idr c.exists_ob)))]
   simp
 end dedekind_rationality

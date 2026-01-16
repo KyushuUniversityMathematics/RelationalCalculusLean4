@@ -1,5 +1,6 @@
 import Dedekind
-import point
+import Function
+import Point
 
 section dedekind_formula
 variable [c:Dedekind]
@@ -37,7 +38,7 @@ theorem dedekind_universal2b {f:c.rel X Y}: Δ Z Z ∘ g ⊑ Δ Z X ∘ f → g 
   apply comp_inc_compat_ab_a'b
   simp
 
-theorem comp_diagonal_cap {f g:c.rel X X}: f ⊑ idr X → g ⊑ idr X → f ∘ g = f ⊓ g := by
+theorem comp_subid_cap {f g:c.rel X X}: f ⊑ idr X → g ⊑ idr X → f ∘ g = f ⊓ g := by
   intro H H0
   apply inc_antisym
   · apply inc_cap.mpr
@@ -47,10 +48,10 @@ theorem comp_diagonal_cap {f g:c.rel X X}: f ⊑ idr X → g ⊑ idr X → f ∘
   · have H1 : f ⊓ g ⊑ idr X := by
       rw[← cap_idem (idr X)]
       apply cap_inc_compat H H0
-    rw[← comp_diagonal H1]
+    rw[← comp_subid H1]
     apply comp_inc_compat
     all_goals simp
-theorem residual_rpc_diagonal {f g:c.rel X X} : f ⊑ idr X → g ⊑ idr X → (f ▹ g) ⊓ idr X = (f ⇒ g) ⊓ idr X := by
+theorem residual_rpc_subid {f g:c.rel X X} : f ⊑ idr X → g ⊑ idr X → (f ▹ g) ⊓ idr X = (f ⇒ g) ⊓ idr X := by
   intro H H0
   apply inc_lower.mpr
   intro h
@@ -59,12 +60,12 @@ theorem residual_rpc_diagonal {f g:c.rel X X} : f ⊑ idr X → g ⊑ idr X → 
   · intro ⟨H1, H2⟩
     apply And.intro _ H2
     rw[inc_rpc]
-    rw[inc_residual, inv_diagonal H, comp_diagonal_cap H H2, cap_comm] at H1
+    rw[inc_residual, inv_subid H, comp_subid_cap H H2, cap_comm] at H1
     exact H1
   · intro ⟨H1, H2⟩
     apply And.intro _ H2
     rw[inc_rpc] at H1
-    rw[inc_residual, inv_diagonal H, comp_diagonal_cap H H2, cap_comm]
+    rw[inc_residual, inv_subid H, comp_subid_cap H H2, cap_comm]
     exact H1
 end dedekind_formula
 
@@ -126,6 +127,4 @@ theorem universal_total {f:c.rel X Y} :
   · intro H
     apply inc_antisym _ H
     simp
-
-
 end dedekind_formula_unit

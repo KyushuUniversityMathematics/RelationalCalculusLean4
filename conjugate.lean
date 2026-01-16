@@ -1,4 +1,4 @@
-import function
+import Function
 
 variable [c : Dedekind]
 def conjugate  (P:c.rel X Y → Prop)(Q:c.rel X' Y' → Prop)(α:c.rel X Y→c.rel X' Y')(β:c.rel X' Y'→c.rel X Y) :=
@@ -59,4 +59,3 @@ theorem injection_conjugate {j:c.rel Z Y}: is_injective j → conjugate (fun f:c
     · simp
       rw[acomp_l H]
       simp
-

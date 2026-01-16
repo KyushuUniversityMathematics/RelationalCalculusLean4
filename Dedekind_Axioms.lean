@@ -1,9 +1,14 @@
+-- \begin{screen}
+--   圏の骨組みとなる対象、射、恒等射、射の合成を定義する。
+
+-- \end{screen}
 class PreCategory where
   ob  : Type u
   rel : ob → ob → Type v
   id  : (X : ob) → (rel X X)
   comp  : (rel X Y) → (rel Y Z) → (rel X Z)
-infixl:80 " ∘ " => PreCategory.comp
+def comp [c : PreCategory] {X Y Z : c.ob}(f: c.rel X Y)(g: c.rel Y Z) := c.comp f g
+infixl:80 " ∘ " => comp
 
 class Category extends PreCategory where
   comp_id_l : (f : rel X Y) → (id X ∘ f) = f
@@ -29,10 +34,13 @@ postfix:120 " # " => inverse
 infixl:80 " ▹ " => Dedekind_Notations.redidual
 def φ [c : Dedekind_Notations] := c.empty
 def Δ [c : Dedekind_Notations] := c.universal
-infixl:51 " ⊑ " => Dedekind_Notations.inc
-infixl:70 " ⊔ " => Dedekind_Notations.cup
+def inc [c : Dedekind_Notations]{X Y:c.ob}(f g : c.rel X Y) := c.inc f g
+infixl:51 " ⊑ " => inc
+def cup [c : Dedekind_Notations]{X Y:c.ob}(f g : c.rel X Y) := c.cup f g
+infixl:70 " ⊔ " => cup
 def cupP [c : Dedekind_Notations]{X Y Z W:c.ob}(P : c.rel X Y → Prop)(f : c.rel X Y → c.rel Z W) := c.cupP P f
-infixl:70 " ⊓ " => Dedekind_Notations.cap
+def cap [c : Dedekind_Notations]{X Y:c.ob}(f g : c.rel X Y) := c.cap f g
+infixl:70 " ⊓ " => cap
 def capP [c : Dedekind_Notations]{X Y Z W:c.ob}(P : c.rel X Y → Prop)(f : c.rel X Y → c.rel Z W) := c.capP P f
 infixl:81 " ⇒ " => Dedekind_Notations.rpc
 def complement [c : Dedekind_Notations]{X Y:c.ob}(f : c.rel X Y) := f ⇒ φ X Y

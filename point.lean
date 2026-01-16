@@ -1,6 +1,4 @@
 import Dedekind
-import shroder
-import function
 import Init.Classical
 
 class Dedekind_unit extends Dedekind where

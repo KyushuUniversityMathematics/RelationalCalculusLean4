@@ -1,17 +1,19 @@
 import sum_product
 import point
 import residual
+import MyTac.mytactic
 
 class cantor extends Dedekind_rationality where
-  power : ∀ X, ∃ Y, ∃ f:rel Y X, ((f ▹ f#)⊓(f ▹ f#)#⊑idr Y) ∧ (∀ Z, ∀ g:rel Z X, idr Z ⊑ (g ▹ f#) ∘ (f ▹ g#))
+  power : ∀ X, ∃ Y, ∃ f:rel Y X,
+  ((f ▹ f#)⊓(f ▹ f#)#⊑idr Y)∧(∀ Z, ∀g:rel Z X, idr Z ⊑ (g ▹ f#) ∘ (f ▹ g#))
 
 variable [c : cantor]
 noncomputable def pow (X : c.ob):c.ob :=
   Classical.choose (c.power X)
 notation "𝒫" X:100 => pow X
-noncomputable def inc (X : c.ob):c.rel (𝒫 X) X :=
+noncomputable def inp (X : c.ob):c.rel (𝒫 X) X :=
   Classical.choose (Classical.choose_spec (c.power X))
-notation "∋_" X:100 => inc X
+notation "∋_" X:100 => inp X
 noncomputable def subset (X : c.ob):= (∋_ X ▹ (∋_ X)#)
 theorem subset_cap_diagonal {X : c.ob} :
   ((subset X)⊓(subset X)# ⊑ idr (𝒫 X)) :=
@@ -67,18 +69,16 @@ theorem rel_fun_inc (f:c.rel X Y) : fᶠ ∘ (∋_ Y) = f := by
       rw[inv_inc_move]
       simp
       apply inv_residual_inc
-  · apply inc_trans
-    · apply comp_inc_compat_b_ab (rel_fun_spec f).left
-    · rw[← comp_assoc]
-      apply comp_inc_compat_ab_ab'
-      rw[rel_fun]
-      apply inc_trans
-      · simp
-        apply comp_inc_compat_ab_a'b cap_l
-      · conv => rhs; rw[← inv_invol (∋_ Y)]
-        rw[inv_inc_move]
-        simp
-        apply inv_residual_inc
+  · myconv => lhs; apply comp_inc_compat_b_ab (rel_fun_spec f).left
+    rw[← comp_assoc]
+    apply comp_inc_compat_ab_ab'
+    simp[rel_fun]
+    myconv => lhs; lhs; apply cap_l
+    conv => rhs; rw[← inv_invol (∋_ Y)]
+    rw[inv_inc_move]
+    simp
+    apply inv_residual_inc
+
 theorem rel_inc_fun {f:c.rel X (𝒫 Y)} :
   is_function f → (f∘(∋_ Y))ᶠ = f := by
   intro H
