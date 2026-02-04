@@ -1,6 +1,6 @@
 {
   "name": "Lean4 Dev",
-  "remoteUser": root,
+  "remoteUser": "root",
   "image": "leanprovercommunity/lean4:latest",
   "customizations": {
     "vscode": {
