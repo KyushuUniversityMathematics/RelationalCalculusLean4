@@ -1,5 +1,6 @@
 {
   "name": "Lean4 Dev",
+  "remoteUser": root,
   "image": "leanprovercommunity/lean4:latest",
   "customizations": {
     "vscode": {
@@ -9,5 +10,5 @@
       ]
     }
   },
-  "postCreateCommand": "lake update && lake build"
+  "postCreateCommand": "lake update && lake build && "
 }
