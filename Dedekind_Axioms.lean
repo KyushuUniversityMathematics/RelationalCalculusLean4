@@ -1,7 +1,5 @@
--- \begin{screen}
---   圏の骨組みとなる対象、射、恒等射、射の合成を定義する。
+import Init.Classical
 
--- \end{screen}
 class PreCategory where
   ob  : Type u
   rel : ob → ob → Type v
@@ -18,7 +16,7 @@ class Category extends PreCategory where
 
 class Dedekind_Notations extends Category where
   inverse : rel X Y → rel Y X
-  redidual : rel X Y → rel Y Z → rel X Z
+  residual : rel X Y → rel Y Z → rel X Z
   empty : (X : ob) → (Y : ob) → rel X Y
   universal : (X : ob) → (Y : ob) → rel X Y
   inc : rel X Y → rel X Y → Prop
@@ -31,7 +29,7 @@ class Dedekind_Notations extends Category where
 def idr [c : Dedekind_Notations](X:c.ob) := c.id X
 def inverse [c : Dedekind_Notations]{X Y:c.ob}(f : c.rel X Y) := c.inverse f
 postfix:120 " # " => inverse
-infixl:80 " ▹ " => Dedekind_Notations.redidual
+infixl:80 " ▹ " => Dedekind_Notations.residual
 def φ [c : Dedekind_Notations] := c.empty
 def Δ [c : Dedekind_Notations] := c.universal
 def inc [c : Dedekind_Notations]{X Y:c.ob}(f g : c.rel X Y) := c.inc f g
@@ -47,7 +45,6 @@ def complement [c : Dedekind_Notations]{X Y:c.ob}(f : c.rel X Y) := f ⇒ φ X Y
 postfix:120 " ⁻ " => complement
 
 class Dedekind extends Dedekind_Notations where
-    exists_ob : ob
     exists_notzero : ∃ X, idr X ≠ φ X X
     inc_refl (f:rel X Y) : f ⊑ f
     inc_trans {f g h : rel X Y} : inc f g → inc g h → inc f h
@@ -63,4 +60,9 @@ class Dedekind extends Dedekind_Notations where
     comp_inv (f : rel X Y) (g : rel Y Z) : (f ∘ g)# = g# ∘ f#
     inc_inv {f g : rel X Y} : f ⊑ g → f# ⊑ g#
     dedekind : f ∘ g ⊓ h ⊑ (f ⊓ h ∘ g#) ∘ (g ⊓ f# ∘ h)
-    inc_redidual {f : rel X Y}{g : rel Y Z}{h : rel X Z}  : h ⊑ f ▹ g ↔ f# ∘ h ⊑ g
+    inc_residual {f : rel X Y}{g : rel Y Z}{h : rel X Z}  : h ⊑ f ▹ g ↔ f# ∘ h ⊑ g
+
+-- 表示の都合上、以下を設定しておく
+variable[c:Dedekind]
+@[simp] theorem comp_def :
+  PreCategory.comp f g = f ∘ g := rfl

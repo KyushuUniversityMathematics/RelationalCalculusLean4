@@ -147,7 +147,7 @@ theorem finit_le_finit : is_finite Y → card_le X Y → is_finite X:= by
 end shroder_cardinal
 
 section sum
-variable [c : Dedekind_sum]
+variable [c : Dedekind_Sum]
 theorem sum_card_le1 : card_le X (X + Y) := by
   exists (in_l X Y)
   apply inl_injective

@@ -70,7 +70,7 @@ theorem residual_rpc_subid {f g:c.rel X X} : f ⊑ idr X → g ⊑ idr X → (f 
 end dedekind_formula
 
 section dedekind_formula_unit
-variable [c:Dedekind_unit]
+variable [c:Dedekind_Unit]
 theorem dedekind_universal2a : Δ I Z ∘ g ⊑ Δ I X ∘ f → Δ Z Z ∘ g ⊑ Δ Z X ∘ f := by
   intro H
   rw[← comp_unit_universal Z, ← tarski2 Z X, ← comp_assoc, ← comp_assoc]

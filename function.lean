@@ -1,5 +1,6 @@
 import Dedekind
 import Dedekind_Axioms
+import MyTac.mytactic
 
 variable [c:Dedekind]
 def is_total (f:c.rel X Y) := idr X ⊑ f ∘ f#
@@ -282,4 +283,38 @@ theorem function_move2 {f:c.rel X Y} {g:c.rel Y Z} {h:c.rel X Z} :
     rw[comp_assoc]
     apply comp_inc_compat_ab_a'b H1
 
--- 途中
+theorem function_rpc_distr : is_function f → is_function g →
+  (f ∘ (α ⇒ β)) ∘ g# = ((f ∘ α) ∘ g#) ⇒ ((f ∘ β) ∘ g#) := by
+  intro H H0
+  rw[inc_lower]
+  intro x
+  constructor
+  · intro H1
+    rw[inc_rpc]
+    apply inc_trans
+    · apply cap_inc_compat_r H1
+    · rw[← function_cap_distr H H0]
+      comp_inc
+      simp[cap_comm, rpc_l]
+  · intro H1
+    rw[inc_rpc, ← function_move2 H0, function_move1 H] at H1
+    rw[← function_move2 H0, function_move1 H, inc_rpc]
+    apply inc_trans dedekind
+    simp
+    rapply H1
+    myconv => lhs; lhs; apply cap_l
+    comp_inc
+    apply inc_trans dedekind
+    comp_inc
+    simp
+
+theorem function_rpc_distr_l : is_function f → (f ∘ (α ⇒ β)) = ((f ∘ α) ⇒ (f ∘ β)) := by
+  intro H
+  rw[← comp_id_r (f ∘ _), ← inv_id]
+  rw[function_rpc_distr H (id_function _)]
+  simp
+theorem function_rpc_distr_r : is_function g → ((α ⇒ β) ∘ g#) = ((α ∘ g#) ⇒ (β ∘ g#)) := by
+  intro H
+  rw[← comp_id_l (_ ⇒ _)]
+  rw[function_rpc_distr (id_function _) H]
+  simp

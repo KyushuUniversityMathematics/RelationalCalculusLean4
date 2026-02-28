@@ -2,8 +2,11 @@
 import Lake
 open Lake DSL
 
-package «RelationalCalculus» where
+
+package RelationalCalculus where
   -- add package configuration options here
+  require mathlib from git
+    "https://github.com/leanprover-community/mathlib4"
 
 lean_lib Dedekind_Axioms where
   -- add library configuration options here

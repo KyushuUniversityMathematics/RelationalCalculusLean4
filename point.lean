@@ -1,13 +1,13 @@
 import Dedekind
 import Init.Classical
 
-class Dedekind_unit extends Dedekind where
+class Dedekind_Unit extends Dedekind where
   unit : ∃ X : ob, φ X X ≠ idr X ∧ idr X = Δ X X ∧ (∀ Y : ob, Δ Y X ∘ Δ X Y = Δ Y Y)
-noncomputable def I [c : Dedekind_unit]:= Classical.choose c.unit
+noncomputable def I [c : Dedekind_Unit]:= Classical.choose c.unit
 
 
 section dedekind_unit
-variable [c : Dedekind_unit]
+variable [c : Dedekind_Unit]
 
 theorem unit_empty_not_id : φ I I ≠ idr I :=
   (Classical.choose_spec c.unit).left
@@ -30,3 +30,5 @@ theorem tarski2 (X Y : c.ob) : Δ X I ∘ Δ I Y = Δ X Y := by
       simp
 
 end dedekind_unit
+
+
