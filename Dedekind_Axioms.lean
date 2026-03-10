@@ -1,5 +1,3 @@
-import Init.Classical
-
 class PreCategory where
   ob  : Type u
   rel : ob → ob → Type v
