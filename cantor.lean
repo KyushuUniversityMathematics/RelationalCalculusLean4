@@ -6,25 +6,24 @@ import Bernstein
 
 section cantor
 class Cantor extends Dedekind_Rationality where
-  power : ∀ X:ob, ∃ Y:ob, ∃ f:rel Y X,
-  ((f ▹ f#)⊓(f ▹ f#)# ⊑ idr Y)∧(∀ Z, ∀g:rel Z X, idr Z ⊑ (g ▹ f#) ∘ (f ▹ g#))
+  pow : ob → ob
+  ni (X : ob) : rel (pow X) X
+  power_axiom1 : ((ni X ▹ ni X#)⊓(ni X ▹ ni X#)# ⊑ idr (pow X))
+  power_axiom2 (α : rel Y X): idr Y ⊑ (α  ▹ ni X#) ∘ (ni X ▹ α#)
 
 variable [c : Cantor]
-noncomputable def pow (X : c.ob):c.ob :=
-  Classical.choose (c.power X)
+def pow := c.pow
 notation "𝒫" X:100 => pow X
-noncomputable def inp (X : c.ob):c.rel (𝒫 X) X :=
-  Classical.choose (Classical.choose_spec (c.power X))
-notation "∋_" X:100 => inp X
-noncomputable def subset (X : c.ob):= (∋_ X ▹ (∋_ X)#)
+def ni_pow (X : c.ob) : c.rel (pow X) X := c.ni X
+notation "∋_" X:100 => ni_pow X
+def subset (X : c.ob):= (∋_ X ▹ (∋_ X)#)
 theorem subset_cap_subid {X : c.ob} :
   ((subset X)⊓(subset X)# ⊑ idr (𝒫 X)) :=
-  (Classical.choose_spec (Classical.choose_spec (c.power X))).left
+  c.power_axiom1
 theorem inc_comp {X Z : c.ob} (g:c.rel Z X):
   idr Z ⊑ (g ▹ (∋_ X)#) ∘ ((∋_ X) ▹ g#) :=
-  (Classical.choose_spec (Classical.choose_spec (c.power X))).right Z g
-
-noncomputable def rel_fun {X Y:c.ob}(f : c.rel X Y) : c.rel X (𝒫 Y) :=
+  c.power_axiom2 g
+def rel_fun {X Y:c.ob}(f : c.rel X Y) : c.rel X (𝒫 Y) :=
   (f ▹ (∋_ Y)#) ⊓ ((∋_ Y) ▹ f#)#
 postfix:120 " ᶠ " => rel_fun
 
@@ -32,12 +31,12 @@ theorem rel_fun_spec {X Y:c.ob}(f : c.rel X Y) :
   is_function (fᶠ) := by
   constructor
   · rw[inc_def1r.mpr (inc_comp f)]
-    apply inc_trans dedekind
+    rapply dedekind
     rw[rel_fun]
-    conv => lhs; rhs; rw[cap_comm]
     simp
+    sort
   · rw[rel_fun]
-    apply inc_trans comp_cap_distr_l
+    rapply comp_cap_distr_l
     apply inc_trans
     · apply cap_inc_compat
       · simp
@@ -49,7 +48,7 @@ theorem rel_fun_spec {X Y:c.ob}(f : c.rel X Y) :
       · apply cap_inc_compat_r
         conv => lhs; rhs; rw[← inv_invol f]
         apply residual_property2
-      · apply inc_trans _ subset_cap_subid
+      · rapply subset_cap_subid
         apply cap_inc_compat_l
         rw[inc_inv]
         conv => lhs; rhs; rw[← inv_invol f]
@@ -71,7 +70,7 @@ theorem rel_fun_def (f:c.rel X Y) : fᶠ ∘ (∋_ Y) = f := by
       rw[inv_inc_move]
       simp
       apply inv_residual_inc
-  · myconv => lhs; apply comp_inc_compat_b_ab (rel_fun_spec f).left
+  · rapply comp_inc_compat_b_ab (rel_fun_spec f).left
     comp_inc
     simp[rel_fun]
     myconv => lhs; lhs; apply cap_l
@@ -116,30 +115,26 @@ theorem total_cap_function {X Y:c.ob}{f : c.rel X Y}{g : c.rel X Y} :
 
 instance cantor_unit : Dedekind_Unit := by
   constructor
-  exists 𝒫 ∅
-  constructor
-  · intro H
-    obtain ⟨X, H0⟩ := c.exists_notzero
-    apply H0
-    apply inc_antisym _ (inc_empty _)
-    apply inc_trans (rel_fun_spec (φ X ∅)).left
-    rw[← comp_id_r (_ᶠ), ← H]
+  · intro h1
+    apply c.notzeroP
     simp
-  · constructor
-    · apply inc_antisym (inc_universal _)
-      apply inc_trans _ subset_cap_subid
-      have H : subset ∅ = Δ (𝒫 ∅) (𝒫 ∅) := by
-        apply inc_antisym (inc_universal _)
-        rw[subset, ← comp_id_r (∋_ ∅), zero_def]
-        simp
-        simp[inc_residual]
-      simp[H]
-    · intro X
+    rapply (rel_fun_spec (φ c.notzero ∅)).left
+    rw[← comp_id_r (_ᶠ), ← h1]
+    simp
+  · apply inc_antisym (inc_universal _)
+    rapply subset_cap_subid
+    have H : subset ∅ = Δ (𝒫 ∅) (𝒫 ∅) := by
       apply inc_antisym (inc_universal _)
-      apply inc_trans (comp_inc_compat_a_ab (rel_fun_spec (φ X ∅)).left)
-      rw[comp_assoc]
-      apply comp_inc_compat
-      all_goals simp
+      rw[subset, ← comp_id_r (∋_ ∅), zero_def]
+      simp
+      simp[inc_residual]
+    simp[H]
+  · intro X
+    apply inc_antisym (inc_universal _)
+    apply inc_trans (comp_inc_compat_a_ab (rel_fun_spec (φ X ∅)).left)
+    rw[comp_assoc]
+    apply comp_inc_compat
+    all_goals simp
 theorem injective_sum {f:c.rel X W}{g:c.rel Y W}: is_injective f → is_injective g → f ∘ g# = φ X Y →
   ∃ Z : c.ob, ∃ (inl : c.rel X Z) (inr : c.rel Y Z),
   inl ∘ inl# = idr X ∧ inr ∘ inr# = idr Y ∧ inl ∘ inr# = φ X Y ∧ inl# ∘ inl ⊔ inr# ∘ inr = idr Z := by
@@ -163,11 +158,9 @@ theorem injective_sum {f:c.rel X W}{g:c.rel Y W}: is_injective f → is_injectiv
       simp[H0.left, H3]
     · constructor
       · simp
-        apply inc_antisym _ (inc_empty _)
         rw[← H1]
         comp_inc
-        myconv => lhs; lhs; apply (sub_injective H2).right
-        simp
+        apply (sub_injective H2).right
       · simp
         dsimp[k] at H2
         rw[← comp_cup_distr_r, ← comp_assoc, ← comp_assoc, ← comp_cup_distr_l, ← sub_spec H2]
@@ -187,14 +180,10 @@ theorem sum_I (X : c.ob) :
   have H0 : is_injective (φ I Xᶠ) := by
     rw[← univalent_function_injective (φ I Xᶠ)]
     apply And.intro _ (rel_fun_spec _)
-    rw[is_univalent]
-    simp[unit_id_universal]
+    simp
   have H1 : is_function (Δ X I) := by
     rw[is_function]
-    simp
-    constructor
-    · simp[comp_unit_universal]
-    · simp[unit_id_universal]
+    simp[comp_unit_universal]
   have H1 : idr Xᶠ ∘ φ I Xᶠ # = φ X I := by
     apply inc_antisym _ (inc_empty _)
     rw[← cap_universal (_ ∘ _)]
@@ -207,53 +196,72 @@ theorem sum_I (X : c.ob) :
     simp[is_total]
     simp
   apply injective_sum H H0 H1
-instance cantor_sum [c : Cantor] : Dedekind_Sum := by
-  constructor
-  intro X Y
-  obtain ⟨XI, iX, jX, HX, HX0, HX1, HX2⟩ := sum_I X
-  obtain ⟨YI, iY, jY, HY, HY0, HY1, HY2⟩ := sum_I Y
-  let f := iX × Δ X I ∘ jY
-  let g := Δ Y I ∘ jX × iY
-  apply (@injective_sum _ _ _ _ f g)
-  · rw[← univalent_function_injective f]
-    constructor
-    · simp[is_univalent]
-      dsimp[f]
-      simp[← sharpness, HX]
-    · dsimp[f]
-      apply function_prod
-      · constructor
-        · simp[HX]
-        · simp[← HX2]
-      · constructor
-        · simp[acomp_l HY0, comp_unit_universal]
-        · simp[← HY2]
-          apply inc_trans _ cup_r
-          apply comp_inc_compat_ab_a'b
-          rw[← comp_assoc]
-          apply comp_inc_compat_ab_a
-          simp[unit_id_universal]
-  · rw[← univalent_function_injective g]
-    constructor
-    · simp[is_univalent]
-      dsimp[g]
-      simp[← sharpness, HY]
-    · dsimp[g]
-      apply function_prod
-      · constructor
-        · simp[acomp_l HX0, comp_unit_universal]
-        · simp[← HX2]
-          apply inc_trans _ cup_r
-          apply comp_inc_compat_ab_a'b
-          rw[← comp_assoc]
-          apply comp_inc_compat_ab_a
-          simp[unit_id_universal]
-      · constructor
-        · simp[HY]
-        · simp[← HY2]
-  · dsimp[f, g]
-    simp[← sharpness, HX1]
-
+noncomputable instance cantor_sum [c : Cantor] : Dedekind_Sum := by
+  -- have finj : ∃ f, is_injective
+  have h : ∀ X Y, ∃ Z inl inr, inl ∘ inl # = idr X ∧ inr ∘ inr # = idr Y ∧ inl ∘ inr # = φ X Y ∧ inl # ∘ inl ⊔ inr # ∘ inr = idr Z := by
+    intro X Y
+    obtain ⟨XI, iX, jX, HX, HX0, HX1, HX2⟩ := sum_I X
+    obtain ⟨YI, iY, jY, HY, HY0, HY1, HY2⟩ := sum_I Y
+    let f := iX × Δ X I ∘ jY
+    let g := Δ Y I ∘ jX × iY
+    have finj : is_injective f := by
+      rw[← univalent_function_injective f]
+      constructor
+      · simp[is_univalent]
+        dsimp[f]
+        simp[← sharpness, HX]
+      · dsimp[f]
+        apply function_prod
+        · constructor
+          · simp[HX]
+          · simp[← HX2]
+        · constructor
+          · simp[acomp_l HY0, comp_unit_universal]
+          · simp[← HY2]
+            apply inc_trans _ cup_r
+            apply comp_inc_compat_ab_a'b
+            rw[← comp_assoc]
+            apply comp_inc_compat_ab_a
+            simp
+    have ginj : is_injective g := by
+      rw[← univalent_function_injective g]
+      constructor
+      · simp[is_univalent]
+        dsimp[g]
+        simp[← sharpness, HY]
+      · dsimp[g]
+        apply function_prod
+        · constructor
+          · simp[acomp_l HX0, comp_unit_universal]
+          · simp[← HX2]
+            apply inc_trans _ cup_r
+            apply comp_inc_compat_ab_a'b
+            rw[← comp_assoc]
+            apply comp_inc_compat_ab_a
+            simp
+        · constructor
+          · simp[HY]
+          · simp[← HY2]
+    have fg : f ∘ g # = φ X Y := by
+      dsimp[f, g]
+      simp[← sharpness, HX1]
+    exact (injective_sum finj ginj fg)
+  refine
+    { sum_ob := fun X Y => Classical.choose (h X Y)
+      in_l := fun {X Y} => Classical.choose (Classical.choose_spec (h X Y))
+      in_r := fun {X Y} => Classical.choose (Classical.choose_spec (Classical.choose_spec (h X Y)))
+      inl_id := ?_
+      inr_id := ?_
+      inl_inr_empty := ?_
+      inl_inr_cup_id := ?_ }
+  · intro X Y
+    exact (Classical.choose_spec (Classical.choose_spec (Classical.choose_spec (h X Y)))).left
+  · intro X Y
+    exact (Classical.choose_spec (Classical.choose_spec (Classical.choose_spec (h X Y)))).right.left
+  · intro X Y
+    exact (Classical.choose_spec (Classical.choose_spec (Classical.choose_spec (h X Y)))).right.right.left
+  · intro X Y
+    exact (Classical.choose_spec (Classical.choose_spec (Classical.choose_spec (h X Y)))).right.right.right
 def is_symmetric_idempotent (θ:c.rel X X) := θ# ⊑ θ ∧ θ ∘ θ = θ
 @[simp]
 theorem symmetric_idempotent_def {θ:c.rel X X} :
@@ -285,7 +293,8 @@ theorem corational_function {X Y : c.ob} (α : c.rel X Y) :
   exists αᶠ, θᶠ
   have Hf : is_function (αᶠ) := rel_fun_spec α
   have Hg : is_function (θᶠ) := rel_fun_spec θ
-  simp[Hf, Hg]
+  simp only [Hf, Hg]
+  simp
   apply inc_antisym
   · rw[← comp_id_r (αᶠ), ← subset_cap_id, subset, function_cap_distr Hf Hg]
     rw[function_residual2 Hf, rel_fun_def, function_residual3 Hg, ← comp_inv, rel_fun_def]
@@ -321,7 +330,8 @@ theorem equivalence_function {θ : c.rel X X} : is_equivalence θ →
   ∃ f : c.rel X (𝒫 X), is_function f ∧ f ∘ f# = θ := by
     rintro ⟨H, H0, H1⟩
     exists θᶠ
-    simp[rel_fun_spec θ]
+    simp only [rel_fun_spec θ]
+    simp
     apply inc_antisym
     · conv => rhs; rw[← rel_fun_def θ]
       comp_inc
@@ -459,13 +469,11 @@ theorem complement'_cap_empty {u:c.rel X X}:
             apply inc_trans _ cup_l
             dsimp[l]
             comp_inc
-            apply comp_inc_compat_ab_b H
           · apply inc_trans _ cup_r
             rw[← @inl_inr_cup_id _ _ X]
             apply inc_trans _ cup_r
             dsimp[r]
             comp_inc
-            apply comp_inc_compat_ab_b H
         · simp
   · rcases symmetric_idempotent_split.mp (equivalence_symmetric_idempotent H3) with ⟨Y, q, H4, H5⟩
     have H6:is_total (q#) := by
@@ -487,7 +495,6 @@ theorem complement'_cap_empty {u:c.rel X X}:
         rapply H7.right
         conv => rhs;rhs; rw[← comp_id_l f, ← H5]
         comp_inc
-        apply comp_inc_compat_ab_b
         rw[← inl_inr_cup_id]
         apply inc_trans _ cup_l
         simp[l]
@@ -504,7 +511,6 @@ theorem complement'_cap_empty {u:c.rel X X}:
         rapply H7.right
         conv => rhs;rhs; rw[← comp_id_l f, ← H5]
         comp_inc
-        apply comp_inc_compat_ab_b
         rw[← inl_inr_cup_id]
         apply inc_trans _ cup_r
         simp[r]
@@ -512,12 +518,10 @@ theorem complement'_cap_empty {u:c.rel X X}:
       dsimp[x]
       rw[← H1, ← H4]
       comp_inc
-      assumption
     have H13 : y ∘ r# ⊑ idr X := by
       dsimp[y]
       rw[← H2, ← H4]
       comp_inc
-      assumption
     constructor
     · apply inc_antisym _ (inc_empty _)
       rw[← inl_inr_empty]
@@ -566,7 +570,6 @@ theorem complement'_cap_empty {u:c.rel X X}:
           dsimp[x]
           rw[← H0, ← H4]
           comp_inc
-          assumption
         conv => lhs; lhs; rhs; rw[← comp_assoc];rhs; rw[← inv_invol (_ ∘ _), comp_inv, inv_invol, inv_subid (inc_trans H11 H)]
         rw[comp_subid (inc_trans H11 H)]
         apply inc_trans
@@ -578,7 +581,6 @@ theorem complement'_cap_empty {u:c.rel X X}:
             rw[← inv_subid H, ← H0, ← H4]
             simp
             comp_inc
-            assumption
           conv => lhs; rhs; simp; rw[← comp_assoc]; lhs; rhs; rw[← inv_invol (_ ∘ _), comp_inv, inv_invol, inv_subid (inc_trans H11 H)]
           rw[comp_subid (inc_trans H11 H)]
           apply inc_trans

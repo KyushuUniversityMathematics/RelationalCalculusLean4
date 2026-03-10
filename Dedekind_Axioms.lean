@@ -45,7 +45,8 @@ def complement [c : Dedekind_Notations]{X Y:c.ob}(f : c.rel X Y) := f ⇒ φ X Y
 postfix:120 " ⁻ " => complement
 
 class Dedekind extends Dedekind_Notations where
-    exists_notzero : ∃ X, idr X ≠ φ X X
+    notzero : ob
+    notzeroP : φ notzero notzero ≠ idr notzero
     inc_refl (f:rel X Y) : f ⊑ f
     inc_trans {f g h : rel X Y} : inc f g → inc g h → inc f h
     inc_antisym {f g : rel X Y}: f ⊑ g → g ⊑ f → f = g

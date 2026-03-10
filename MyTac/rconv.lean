@@ -2,8 +2,6 @@ import Lean
 import Dedekind
 import Lean.Elab.Tactic.Conv
 open Lean Meta Elab Tactic Conv
-open Lean.Elab.Tactic
-open Lean.Meta
 open Lean.Parser.Tactic.Conv
 open Lean.Elab.Term
 
@@ -127,44 +125,6 @@ private def makerwlemma (ns : NavSeq) : TacticM (TSyntax `term) := do
   | none =>
       throwError "[myconv] apply が見つかりません"
 
--- syntax (name := runRw) "runRw" "=>" convSeq : tactic
-
--- @[tactic runRw]
--- def evalRunRw : Tactic := fun stx => do
---   match stx with
---   | `(tactic| runRw => $seq) =>
---       withMainContext do
---         let ns := makeNavSeq seq
---         let t  ← makerwlemma ns
---         evalTactic (← `(tactic| apply $t))
---   | _ => throwUnsupportedSyntax
-
-/-- Nav 列から convSeq を再構成（lhs/rhs のみを連結） --/
--- private def dropLastapply
---   (seq : TSyntax `Lean.Parser.Tactic.Conv.convSeq)
---   : TacticM (TSyntax `Lean.Parser.Tactic.Conv.convSeq) := do
-
---   match seq.raw with
---   | Syntax.node info kind args =>
---       -- convSeq か確認
---       logInfo m!"[dropLastapply] kind:{kind}"
---       if kind != `Lean.Parser.Tactic.Conv.convSeq then
---         return seq
-
---       let xs := args.toList
---       match xs with
---       | [] => logInfo m!"[dropLastapply] empty convSeq"
---       | a :: b => logInfo m!"[dropLastapply] first arg:{a}, second arg:{b}"
-
---       -- 末尾削除（List.dropLast を使って簡潔に書く）
---       let newArgs := xs.dropLast.toArray
---       logInfo m!"newArgs:{newArgs}"
-
---       return ⟨Syntax.node info kind newArgs⟩
-
---   | _ =>
---       return seq
-
 
 @[tactic myconvSeq]
 def evalMyConvSeq : Tactic := fun stx => do
@@ -186,25 +146,17 @@ def evalMyConvSeq : Tactic := fun stx => do
         | Nav.lhs :: tail =>
             let tm ← makerwlemma tail
             evalTactic (← `(tactic| apply inc_trans $tm ?_))
-              -- let newseq ← dropLastapply seq
-              -- evalTactic (← `(tactic| conv => $newseq))
         | Nav.rhs :: tail =>
             let tm ← makerwlemma tail
             evalTactic (← `(tactic| apply inc_trans ?_ $tm))
-            -- let newseq ← dropLastapply seq
-            -- let newseq2 ← dropLastapply newseq
-            -- logInfo m!"[myconv] newseq after rhs apply: {newseq}"
-            -- logInfo m!"[myconv] newseq after rhs apply: {newseq2}"
-            -- evalTactic (← `(tactic| conv => $newseq2))
         | _ =>
             evalTactic (← `(tactic| conv => $seq))
   | _ => throwUnsupportedSyntax
 
-@[simp] theorem assumption_simp {P:Prop}(H: P) : P := H
 
-variable [c : Dedekind]
-theorem test : f ⊑ f' → g ⊑ g' → (f ∘  g) ⊑ (f' ∘ g') := by
-  intro H H0
-  myconv => rhs; lhs; apply H
-  apply comp_inc_compat_ab_ab'
-  assumption
+-- variable [c : Dedekind]
+-- theorem test : f ⊑ f' → g ⊑ g' → (f ∘  g) ⊑ (f' ∘ g') := by
+--   intro H H0
+--   myconv => rhs; lhs; apply H
+--   apply comp_inc_compat_ab_ab'
+--   assumption

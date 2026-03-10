@@ -19,8 +19,6 @@ theorem injection_conjugate {j:c.rel Z Y}: is_injective j → conjugate (fun f:c
   · intro f ⟨⟨H1, H2⟩, H3⟩
     constructor
     · simp
-      rw[is_function]
-      simp
       constructor
       · rw[← comp_id_r (idr _)]
         apply inc_trans (comp_inc_compat H1 H1)
@@ -43,8 +41,6 @@ theorem injection_conjugate {j:c.rel Z Y}: is_injective j → conjugate (fun f:c
   · intro g ⟨H1, H2⟩
     constructor
     · simp
-      rw[is_function]
-      simp
       constructor
       · rw[acomp_l H]
         simp

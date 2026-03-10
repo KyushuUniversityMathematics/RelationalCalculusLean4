@@ -2,32 +2,36 @@ import Lean
 import Dedekind
 open Lean Elab Tactic
 
-syntax (name := myconpinc) "comp_inc" : tactic
+elab "comp_inc": tactic => do
+  let g ← getMainGoal
+  evalTactic (← `(tactic|
+    repeat first
+    |rw [← comp_assoc]
+    |apply comp_inc_compat_ab_ab'
+    |apply comp_inc_compat_ab_a
+    |apply comp_inc_compat_a_ab
+  ))
+  evalTactic (← `(tactic|
+    repeat first
+    |rw [comp_assoc]
+    |apply comp_inc_compat_ab_a'b
+    |apply comp_inc_compat_ab_b
+    |apply comp_inc_compat_b_ab
+  ))
 
-@[tactic myconpinc]
-partial def evalMyConpInc : Tactic := fun _ => do
-  withMainContext do
-    let rec loop : TacticM Unit := do
-      let g ← getMainGoal
-      let tgtBefore ← instantiateMVars (← g.getType)
-      evalTactic (← `(tactic| repeat rw [← comp_assoc]))
-      evalTactic (← `(tactic| try apply comp_inc_compat_ab_ab'))
+  let g' ← getMainGoal
+  if g == g' then
+    throwError "comp_inc tactic failed to make progress"
+  else
+    evalTactic (← `(tactic|
+      repeat first
+        |simp
+        |grind
+    ))
 
-      evalTactic (← `(tactic| repeat rw [comp_assoc]))
-      evalTactic (← `(tactic| try apply comp_inc_compat_ab_a'b))
-
-
-      -- ゴールが変わったときだけ再帰
-      let g' ← getMainGoal
-      let tgtAfter ← instantiateMVars (← g'.getType)
-
-      -- 型が変わったときだけ再帰
-      unless (← Meta.isExprDefEq tgtBefore tgtAfter) do
-        loop
-    loop
-variable[c:Dedekind]
-theorem test_comp_inc(f f':c.rel X Y)(g:c.rel Y Z):
-  f ⊑ f' → f ∘ g ⊑ f' ∘ g := by
-  intro H
-  comp_inc
-  assumption
+-- variable[c:Dedekind]
+-- theorem test_comp_inc(f f':c.rel X Y)(g:c.rel Y Z):
+--   f ⊑ f' → f ∘ g ⊑ f' ∘ g := by
+--   intro H
+--   comp_inc
+--   assumption

@@ -43,7 +43,7 @@ theorem cup_nfaP (l : List σ){Q Q' : c.ob}(M : nfa σ Q)(M' : nfa σ Q') :
   have H : δstar (M + M') l = (in_l Q Q'# ∘ δstar M l) ∘ in_l Q Q' ⊔ (in_r Q Q'# ∘ δstar M' l) ∘ in_r Q Q' := by
     induction l with
     | nil =>
-      simp[δstar]
+      simp[δstar, inl_inr_cup_id]
     | cons a l' ih =>
       simp[δstar, ih]
       simp[cup_nfa, rel_sum]
@@ -292,9 +292,8 @@ theorem plus_nfaP (M:nfa σ Q):
           · simp[H] at Hnil
             simp[H, acceptRel, δstar]
             rapply ih Hnil
-            conv => rhs; rw[← comp_id_r M.β, unit_id_universal]
+            conv => rhs; rw[← comp_id_r M.β]
             comp_inc
-            simp
           · exfalso
             clear ih M Q
             induction v with
@@ -349,9 +348,7 @@ theorem plus_nfaP (M:nfa σ Q):
             rapply ih Hw'
             clear ih Hw' w'
             conv => rhs;lhs;rhs; rw [← comp_id_r M.β]
-            rw[unit_id_universal]
             comp_inc
-            simp
           | cons x h ix =>
             clear ih ix
             simp[flatten] at Hw'
@@ -418,9 +415,7 @@ theorem star_nfaP (M:nfa σ Q):
   rw[star_nfa, cup_nfaP, eps_nfaP, plus_nfaP]
   induction w with
   | nil =>
-    simp[unit_id_universal]
-    apply inc_antisym _ (inc_universal _)
-    rw[← unit_id_universal]
+    simp
     apply (@cupP_inc _ _ _ _ _ _ id)
     exists []
   | cons u w ih =>

@@ -5,42 +5,38 @@ import Domain
 import Conjugate
 
 class Dedekind_Sum extends Dedekind where
-  sum_axiom : ∀ X Y : ob, ∃ Z : ob, ∃ (inl : rel X Z) (inr : rel Y Z),
-    inl ∘ inl# = idr X ∧ inr ∘ inr# = idr Y ∧ inl ∘ inr# = φ X Y ∧ inl# ∘ inl ⊔ inr# ∘ inr = idr Z
-noncomputable def sum_ob [c : Dedekind_Sum](X Y : c.ob) : c.ob :=
-  Classical.choose (c.sum_axiom X Y)
-infixl:51 " + " => sum_ob
-noncomputable def in_l [c : Dedekind_Sum](X Y : c.ob) : c.rel X (X+Y) :=
-  Classical.choose (Classical.choose_spec (c.sum_axiom X Y))
-noncomputable def in_r [c : Dedekind_Sum](X Y : c.ob) : c.rel Y (X+Y) :=
-  Classical.choose (Classical.choose_spec (Classical.choose_spec (c.sum_axiom X Y)))
-
+  sum_ob : ob → ob → ob
+  in_l {X Y} : rel X (sum_ob X Y)
+  in_r {X Y} : rel Y (sum_ob X Y)
+  inl_id : (@in_l X Y) ∘ (@in_l X Y)# = idr X
+  inr_id : (@in_r X Y) ∘ (@in_r X Y)# = idr Y
+  inl_inr_empty : in_l ∘ in_r# = φ X Y
+  inl_inr_cup_id : in_l# ∘ in_l ⊔ in_r# ∘ in_r = idr (sum_ob X Y)
 section dedekind_sum
 variable [c : Dedekind_Sum]
-@[simp] theorem inl_id : in_l X Y ∘ (in_l X Y)# = idr X := by
-  have H := (Classical.choose_spec (Classical.choose_spec (c.sum_axiom X Y)))
-  cases H with | intro inr H
-  exact H.left
+
+def sum_ob := c.sum_ob
+infixl:51 " + " => sum_ob
+@[simp] theorem sum_ob_simp : Dedekind_Sum.sum_ob X Y = X + Y := rfl
+def in_l (X Y:c.ob) : c.rel X (X + Y) := @c.in_l X Y
+def in_r (X Y:c.ob) : c.rel Y (X + Y) := @c.in_r X Y
+@[simp] theorem inl_id {X Y:c.ob}: in_l X Y ∘ in_l X Y # = idr X := @c.inl_id X Y
 @[simp] theorem inl_id_l : ∀ x:c.rel Z X, (x ∘ in_l X Y) ∘ in_l X Y # = x ∘ idr X := acomp_l inl_id
-@[simp] theorem inr_id : in_r X Y ∘ (in_r X Y)# = idr Y :=
-  (Classical.choose_spec (Classical.choose_spec (Classical.choose_spec (c.sum_axiom X Y)))).right.left
+@[simp] theorem inr_id {X Y:c.ob} : in_r X Y ∘ in_r X Y # = idr Y := @c.inr_id X Y
 @[simp] theorem inr_id_l : ∀ x:c.rel Z Y, (x ∘ in_r X Y) ∘ in_r X Y # = x ∘ idr Y := acomp_l inr_id
-@[simp] theorem inl_inr_empty : in_l X Y ∘ (in_r X Y)# = φ X Y :=
-  (Classical.choose_spec (Classical.choose_spec (Classical.choose_spec (c.sum_axiom X Y)))).right.right.left
+@[simp] theorem inl_inr_empty : in_l X Y ∘ (in_r X Y)# = φ X Y := c.inl_inr_empty
 @[simp] theorem inl_inr_empty_l : ∀ x:c.rel Z X, (x ∘ in_l X Y) ∘ in_r X Y # = x ∘ φ X Y := acomp_l inl_inr_empty
 @[simp] theorem inr_inl_empty : in_r X Y ∘ (in_l X Y)# = φ Y X := by
   rw[← inv_invol (in_r _ _), ← comp_inv, inl_inr_empty]
   simp
 @[simp] theorem inr_inl_empty_l : ∀ x:c.rel Z Y, (x ∘ in_r X Y) ∘ in_l X Y # = x ∘ φ Y X := acomp_l inr_inl_empty
-@[simp] theorem inl_inr_cup_id : (in_l X Y)# ∘ in_l X Y ⊔ (in_r X Y)# ∘ in_r X Y = idr (X + Y) :=
-  (Classical.choose_spec (Classical.choose_spec (Classical.choose_spec (c.sum_axiom X Y)))).right.right.right
+theorem inl_inr_cup_id : (in_l X Y)# ∘ in_l X Y ⊔ (in_r X Y)# ∘ in_r X Y = idr (X + Y) :=
+  c.inl_inr_cup_id
 theorem inl_injective (X Y : c.ob) : is_injective (in_l X Y) := by
-  rw[is_injective, ← inl_inr_cup_id]
-  apply And.intro inl_id cup_l
+  simp[← inl_inr_cup_id]
 theorem inr_injective (X Y : c.ob) : is_injective (in_r X Y) := by
-  rw[is_injective, ← inl_inr_cup_id]
-  apply And.intro inr_id cup_r
-noncomputable def rel_sum (f : c.rel X Z) (g : c.rel Y Z) := (in_l X Y)# ∘ f ⊔ (in_r X Y)# ∘ g
+  simp[← inl_inr_cup_id]
+def rel_sum (f : c.rel X Z) (g : c.rel Y Z) := (in_l X Y)# ∘ f ⊔ (in_r X Y)# ∘ g
 infixl:50 " + " => rel_sum
 theorem sum_inc_compat {f f' : c.rel X Z} {g g' : c.rel Y Z} :
   f ⊑ f' → g ⊑ g' → (f + g) ⊑ (f' + g') := by
@@ -98,7 +94,7 @@ theorem sum_conjugate {f : c.rel X Z}{g : c.rel Y Z}{h: c.rel (X + Y) Z} :
     rw[rel_sum, ← Hf, ← Hg]
     simp
     rw[← comp_cup_distr_r]
-    simp
+    simp[inl_inr_cup_id]
   · intro H
     rw[H, rel_sum]
     simp
@@ -133,28 +129,30 @@ end dedekind_sum
 
 
 class Dedekind_Prod extends Dedekind where
-  product_axiom : ∀ X Y : ob, ∃ Z : ob, ∃ (fst : rel Z X) (snd : rel Z Y),
-    fst ∘ fst# ⊓ snd ∘ snd# = idr Z ∧ fst# ∘ snd = Δ X Y ∧ is_function fst ∧ is_function snd
-noncomputable def prod_ob [c : Dedekind_Prod](X Y : c.ob) : c.ob :=
-  Classical.choose (c.product_axiom X Y)
-infixl:52 " × " => prod_ob
-noncomputable def fst [c : Dedekind_Prod](X Y : c.ob) : c.rel (X × Y) X :=
-  Classical.choose (Classical.choose_spec (c.product_axiom X Y))
-noncomputable def snd [c : Dedekind_Prod](X Y : c.ob) : c.rel (X × Y) Y :=
-  Classical.choose (Classical.choose_spec (Classical.choose_spec (c.product_axiom X Y)))
-
+  prod_ob : ob → ob → ob
+  fst (X Y) : rel (prod_ob X Y) X
+  snd (X Y) : rel (prod_ob X Y) Y
+  fst_snd_cap_id : fst X Y ∘ fst X Y# ⊓ snd X Y ∘ snd X Y# = idr (prod_ob X Y)
+  fst_snd_universal : fst X Y# ∘ snd X Y = Δ X Y
+  fst_function : is_function (fst X Y)
+  snd_function : is_function (snd X Y)
 section dedekind_prod
 variable [c : Dedekind_Prod]
+def prod_ob := c.prod_ob
+infixl:52 " × " => prod_ob
+@[simp] theorem prod_ob_simp : Dedekind_Prod.prod_ob X Y = X × Y := rfl
+def fst (X Y : c.ob) : c.rel (X × Y) X := c.fst X Y
+def snd (X Y : c.ob) : c.rel (X × Y) Y := c.snd X Y
 @[simp]theorem fst_snd_cap_id : fst X Y ∘ (fst X Y)# ⊓ snd X Y ∘ (snd X Y)# = idr (X × Y) :=
-  (Classical.choose_spec (Classical.choose_spec (Classical.choose_spec (c.product_axiom X Y)))).left
+  c.fst_snd_cap_id
 @[simp]theorem fst_snd_universal (X Y:c.ob) : (fst X Y)# ∘ snd X Y = Δ X Y :=
-  (Classical.choose_spec (Classical.choose_spec (Classical.choose_spec (c.product_axiom X Y)))).right.left
+  c.fst_snd_universal
 @[simp]theorem fst_snd_universal_l  : ∀ x:c.rel Z X, (x ∘ fst X Y#) ∘ snd X Y = x ∘ Δ X Y := acomp_l (fst_snd_universal X Y)
 @[simp]theorem snd_fst_universal (X Y : c.ob) : (snd X Y)# ∘ fst X Y = Δ Y X := by
   rw[← inv_invol (_ ∘ _), comp_inv, inv_invol, fst_snd_universal, inv_universal]
 @[simp]theorem snd_fst_universal_l : ∀ x:c.rel Z Y, (x ∘ snd X Y#) ∘ fst X Y = x ∘ Δ Y X := acomp_l (snd_fst_universal X Y)
-theorem fst_function {X Y : c.ob} : is_function (fst X Y) := (Classical.choose_spec (Classical.choose_spec (Classical.choose_spec (c.product_axiom X Y)))).right.right.left
-theorem snd_function {X Y : c.ob} : is_function (snd X Y) := (Classical.choose_spec (Classical.choose_spec (Classical.choose_spec (c.product_axiom X Y)))).right.right.right
+theorem fst_function {X Y : c.ob} : is_function (fst X Y) := c.fst_function
+theorem snd_function {X Y : c.ob} : is_function (snd X Y) := c.snd_function
 noncomputable def rel_prod {X Y Z : c.ob}(f : c.rel Z X)(g : c.rel Z Y) : c.rel Z (X × Y) :=
   f ∘ fst X Y# ⊓ g ∘ snd X Y#
 infixl:51 " × " => rel_prod
@@ -411,38 +409,44 @@ theorem sub_injective [c : Dedekind_sub']{X:c.ob}{f:c.rel X X}(H:f ⊑ idr X) :
 
 
 class Dedekind_Rationality extends Dedekind where
-  rationality : ∀ X Y : ob, ∀ f:rel X Y, ∃ Z : ob, ∃ (a : rel Z X) (b : rel Z Y),
-    a ∘ a# ⊓ b ∘ b# = idr Z ∧ a# ∘ b = f ∧ is_function a ∧ is_function b
-
-instance DedekindProd_of_Rationality [c : Dedekind_Rationality] : Dedekind_Prod where
-  product_axiom X Y := by
-    obtain ⟨Z, a, b, hcap, huniv, ha, hb⟩ := c.rationality X Y (Δ X Y)
-    exact ⟨Z, a, b, hcap, by simpa using huniv, ha, hb⟩
-
-
-noncomputable def rational_ob [c : Dedekind_Rationality]{X Y : c.ob}(f:c.rel X Y) : c.ob :=
-  Classical.choose (c.rationality X Y f)
-noncomputable def rational1 [c : Dedekind_Rationality]{X Y : c.ob}(f:c.rel X Y) : c.rel (rational_ob f) X :=
-  Classical.choose (Classical.choose_spec (c.rationality X Y f))
-noncomputable def rational2 [c : Dedekind_Rationality]{X Y : c.ob}(f:c.rel X Y) : c.rel (rational_ob f) Y :=
-  Classical.choose (Classical.choose_spec (Classical.choose_spec (c.rationality X Y f)))
+  rational_ob : rel X Y → ob
+  rational1 (α : rel X Y) : rel (rational_ob α) X
+  rational2 (α : rel X Y) : rel (rational_ob α) Y
+  rational_cap_id (α : rel X Y) : rational1 α ∘ rational1 α# ⊓ rational2 α ∘ rational2 α# = idr (rational_ob α)
+  rational_comp (α : rel X Y) : rational1 α# ∘ rational2 α = α
+  rational1_function (α : rel X Y) : is_function (rational1 α)
+  rational2_function (α : rel X Y) : is_function (rational2 α)
 
 section dedekind_rationality
 variable [c : Dedekind_Rationality]
-@[simp] theorem rational_cap_id {X Y : c.ob}(f:c.rel X Y) :
-  rational1 f ∘ (rational1 f)# ⊓ rational2 f ∘ (rational2 f)# = idr (rational_ob f) :=
-  (Classical.choose_spec (Classical.choose_spec (Classical.choose_spec (c.rationality X Y f)))).left
-@[simp] theorem rational_comp{X Y : c.ob}(f:c.rel X Y) :
-  (rational1 f)# ∘ rational2 f = f :=
-  (Classical.choose_spec (Classical.choose_spec (Classical.choose_spec (c.rationality X Y f)))).right.left
+def rational_ob (α : c.rel X Y) := c.rational_ob α
+@[simp] theorem rational_ob_simp : Dedekind_Rationality.rational_ob α = rational_ob α := rfl
+def rational1 (α : c.rel X Y) : c.rel (rational_ob α) X := c.rational1 α
+def rational2 (α : c.rel X Y) : c.rel (rational_ob α) Y := c.rational2 α
+
+@[simp] theorem rational_cap_id (α : c.rel X Y) :
+  rational1 α ∘ (rational1 α)# ⊓ rational2 α ∘ (rational2 α)# = idr (rational_ob α) :=
+  c.rational_cap_id α
+@[simp] theorem rational_comp{X Y : c.ob}(α : c.rel X Y) :
+  (rational1 α)# ∘ rational2 α = α := c.rational_comp α
 @[simp] theorem rational_comp_l {X Y : c.ob}(f:c.rel X Y) : ∀ x:c.rel Z X,
   (x ∘ rational1 f#) ∘ rational2 f = x ∘ f := acomp_l (rational_comp f)
-theorem rational1_function {X Y : c.ob}(f:c.rel X Y) :
-  is_function (rational1 f) :=
-  (Classical.choose_spec (Classical.choose_spec (Classical.choose_spec (c.rationality X Y f)))).right.right.left
-theorem rational2_function {X Y : c.ob}(f:c.rel X Y) :
-  is_function (rational2 f) :=
-  (Classical.choose_spec (Classical.choose_spec (Classical.choose_spec (c.rationality X Y f)))).right.right.right
+theorem rational1_function (α : c.rel X Y) :
+  is_function (rational1 α) := c.rational1_function α
+theorem rational2_function (α : c.rel X Y) :
+  is_function (rational2 α) := c.rational2_function α
+instance DedekindProd_of_Rationality : Dedekind_Prod := by
+  constructor
+  · intro X Y
+    exact rational_cap_id (Δ X Y)
+  · intro X Y
+    exact rational_comp (Δ X Y)
+  · intro X Y
+    exact rational1_function (Δ X Y)
+  · intro X Y
+    exact rational2_function (Δ X Y)
+
+
 
 
 theorem sharpness {f:c.rel X Y}{h:c.rel W Y}{g:c.rel X Z}{k:c.rel W Z} :
@@ -636,12 +640,10 @@ instance DedekindSub_of_Rationality [c : Dedekind_Rationality] : Dedekind_sub' :
   exists (rational_ob f), (rational1 f)
   exact ⟨subid_rational3 H, subid_rational2 H, rational1_function f⟩
 
-noncomputable def ZERO := rational_ob (φ (Classical.choose (c.exists_notzero)) (Classical.choose (c.exists_notzero)))
+def ZERO := rational_ob (φ c.notzero c.notzero)
 notation "∅" => ZERO
 theorem zero_def : idr ∅ = φ ∅ ∅ := by
   dsimp[ZERO]
-  rw[← comp_id_r (idr _), ← subid_rational2 (inc_empty (idr (Classical.choose (c.exists_notzero))))]
-  simp
-  rw[acomp_l (subid_rational3 (inc_empty (idr (Classical.choose (c.exists_notzero)))))]
-  simp
+  rw[← comp_id_r (idr _), ← subid_rational2 (inc_empty (idr c.notzero))]
+  simp[acomp_l (subid_rational3 (inc_empty (idr c.notzero)))]
 end dedekind_rationality
