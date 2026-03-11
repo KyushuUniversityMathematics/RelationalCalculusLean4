@@ -73,7 +73,7 @@ theorem rel_fun_def (f:c.rel X Y) : fᶠ ∘ (∋_ Y) = f := by
   · transby comp_inc_compat_b_ab (rel_fun_spec f).left
     comp_inc
     simp[rel_fun]
-    myconv => lhs; lhs; apply cap_l
+    transby comp_inc_compat_ab_a'b cap_l
     conv => rhs; rw[← inv_invol (∋_ Y)]
     rw[inv_inc_move]
     simp
@@ -318,7 +318,7 @@ theorem corational_function {X Y : c.ob} (α : c.rel X Y) :
   · conv => rhs;rw[← rel_fun_def α]
     comp_inc
     rw[← comp_id_l (∋_Y)]
-    myconv => rhs; lhs; apply Hg.right
+    transby comp_inc_compat_ab_a'b Hg.right
     rw[← comp_assoc, rel_fun_def]
     apply comp_inc_compat_a_ab
     dsimp[θ]
@@ -336,7 +336,7 @@ theorem equivalence_function {θ : c.rel X X} : is_equivalence θ →
     · conv => rhs; rw[← rel_fun_def θ]
       comp_inc
       rw[← comp_id_l (∋_ X)]
-      myconv => rhs; lhs; apply (rel_fun_spec θ).right
+      transby comp_inc_compat_ab_a'b (rel_fun_spec θ).right
       rw[← comp_assoc, rel_fun_def θ]
       apply comp_inc_compat_a_ab H
     · conv => rhs;lhs; rw[← comp_id_r (θᶠ)]
@@ -373,7 +373,7 @@ theorem symmetric_idempotent_univalent {θ:c.rel X X} :
   · rw[is_univalent]
     simp
     rw[acomp_l (comp_subid domain_subid)]
-    myconv => lhs; lhs; rhs; apply domain_subid
+    transby comp_inc_compat_ab_a'b (comp_inc_compat_ab_ab' domain_subid)
     simp
     exact H2.right
   · simp
@@ -486,11 +486,9 @@ theorem complement'_cap_empty {u:c.rel X X}:
       dsimp[x]
       constructor
       · simp
-        conv => rhs; lhs; lhs; rw[← comp_assoc]
-        myconv =>rhs; lhs; lhs; rhs; apply H7.left
-        simp
-        rw[acomp_l H4, H1]
-        simp
+        rw[← H1, ← H4]
+        comp_inc
+        exact H7.left
       · simp
         transby H7.right
         conv => rhs;rhs; rw[← comp_id_l f, ← H5]
@@ -502,18 +500,16 @@ theorem complement'_cap_empty {u:c.rel X X}:
       dsimp[y]
       constructor
       · simp
-        conv => rhs; lhs; lhs; rw[← comp_assoc]
-        myconv =>rhs; lhs; lhs; rhs; apply H7.left
-        simp
-        rw[acomp_l H4, H2]
-        simp
+        rw[← H2, ← H4]
+        comp_inc
+        exact H7.left
       · simp
         transby H7.right
-        conv => rhs;rhs; rw[← comp_id_l f, ← H5]
+        comp_inc
+        rw[← H5]
         comp_inc
         rw[← inl_inr_cup_id]
-        apply inc_trans _ cup_r
-        simp[r]
+        exact cup_r
     have H12 : x ∘ l# ⊑ idr X := by
       dsimp[x]
       rw[← H1, ← H4]
@@ -523,12 +519,12 @@ theorem complement'_cap_empty {u:c.rel X X}:
       rw[← H2, ← H4]
       comp_inc
     constructor
-    · apply inc_antisym _ (inc_empty _)
+    · simp
       rw[← inl_inr_empty]
       conv => rhs; change l ∘ r#; rw[← comp_id_r l]
-      myconv => rhs; lhs; rhs; apply (H9.right)
+      transby comp_inc_compat_ab_a'b (comp_inc_compat_ab_ab' H9.right)
       rw[← comp_id_r (x#)]
-      myconv => rhs; lhs; rhs; lhs; rhs; apply H
+      transby (comp_inc_compat_ab_a'b (comp_inc_compat_ab_ab' (comp_inc_compat_ab_a'b (comp_inc_compat_ab_ab' H))))
       simp
       have H11 : u ∘ x = u ∘ y := by
         dsimp[x, y]
@@ -562,7 +558,7 @@ theorem complement'_cap_empty {u:c.rel X X}:
         exact comp_inc_compat_ab_a H13
       · transby H9.left
         rw[← comp_id_r (x#), comp_assoc]
-        myconv => lhs; rhs; apply H10.left
+        transby (comp_inc_compat_ab_ab' H10.left)
         conv => lhs; lhs; lhs; rw[← comp_id_r x, ← inl_inr_cup_id]; change x ∘ (l# ∘ l ⊔ r# ∘ r)
         conv => lhs; lhs; simp; rw[← comp_assoc]; lhs; rhs; rw[← inv_invol (_ ∘ _), comp_inv, inv_invol, inv_subid H12]
         rw[comp_subid H12]
@@ -590,18 +586,11 @@ theorem complement'_cap_empty {u:c.rel X X}:
             rw[comp_subid H13]
             simp
             rw[comp_subid H]
-            apply inc_trans
-            · apply cup_inc_compat_r
-              apply cup_inc_compat_r
-              apply cup_inc_compat_r
-              apply comp_inc_compat_ab_a'b H12
-            · simp
-              rw[cup_comm, cup_assoc, ← comp_assoc]
-              apply inc_trans
-              · apply cup_inc_compat_r
-                apply cup_inc_compat_r
-                apply comp_inc_compat_ab_ab' H13
-              · simp
+            sort
+            apply cup_inc_compat_r
+            simp[inc_cup]
+            constructor
+            all_goals comp_inc
 
 theorem split {X Y : c.ob} (α : c.rel X Y) :
   ∃ β :c.rel X Y, α ⊓ β = φ X Y ∧ α ⊔ β = Δ X Y := by

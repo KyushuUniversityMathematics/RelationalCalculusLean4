@@ -58,22 +58,22 @@ theorem comp_univalent {f:c.rel X Y} {g:c.rel Y Z} :
   is_univalent f → is_univalent g → is_univalent (f ∘ g) := by
   simp
   intro H H0
-  rapply H0
+  transby H0
   comp_inc
 theorem comp_total {f:c.rel X Y} {g:c.rel Y Z} :
   is_total f → is_total g → is_total (f ∘ g) := by
   simp
   intro H H0
-  rapply H
+  transby H
   comp_inc
 theorem comp_function {f:c.rel X Y} {g:c.rel Y Z} :
   is_function f → is_function g → is_function (f ∘ g) := by
   simp
   rintro H H0 H1 H2
   constructor
-  · rapply H
+  · transby H
     comp_inc
-  · rapply H2
+  · transby H2
     comp_inc
 theorem comp_injective {f:c.rel X Y} {g:c.rel Y Z} :
   is_injective f → is_injective g → is_injective (f ∘ g) := by
@@ -81,7 +81,7 @@ theorem comp_injective {f:c.rel X Y} {g:c.rel Y Z} :
   intro H H0 H1 H2
   constructor
   · simp_all[acomp_l H1]
-  · rapply H2
+  · transby H2
     comp_inc
 theorem comp_surjective {f:c.rel X Y} {g:c.rel Y Z} :
   is_surjective f → is_surjective g → is_surjective (f ∘ g) := by
@@ -89,7 +89,7 @@ theorem comp_surjective {f:c.rel X Y} {g:c.rel Y Z} :
   intro H H0 H1 H2
   constructor
   · simp_all[acomp_l H]
-  · rapply H0
+  · transby H0
     comp_inc
 theorem comp_bijective {f:c.rel X Y} {g:c.rel Y Z} :
   is_bijective f → is_bijective g → is_bijective (f ∘ g) := by
@@ -114,18 +114,18 @@ theorem univalent_comp {f:c.rel X Y} {g:c.rel Y Z} :
   is_univalent (f ∘ g) → is_total (f#) → is_univalent g := by
   simp
   intro H H0
-  rapply H
+  transby H
   comp_inc
 theorem total_inc : is_total f → f ⊑ g → is_total g := by
   simp
   intro H H0
-  rapply H
+  transby H
   apply comp_inc_compat H0
   simp_all
 theorem univalent_inc : is_univalent g → f ⊑ g → is_univalent f := by
   simp
   intro H H0
-  rapply H
+  transby H
   apply comp_inc_compat _ H0
   simp_all
 theorem function_inc {f:c.rel X Y} {g:c.rel X Y} :
@@ -146,25 +146,21 @@ theorem function_rel_inv_rel  :
   simp
   intro H H0
   apply inc_antisym
-  · conv => rhs; rw[← comp_id_r f]
-    myconv => rhs; rhs; apply H0
-    simp
-  · conv => lhs; rw[← comp_id_l f]
-    myconv => lhs; lhs; apply H
-    simp
+  · comp_inc
+  · apply comp_inc_compat_b_ab H
 theorem function_capP_distr {f:c.rel X Y}{g:c.rel W Z} {P : c.rel A B → Prop}{α : c.rel A B → c.rel Y Z} :
   is_function f → is_function g → (f ∘ capP P α) ∘ g# = capP P (fun x => (f ∘ (α x)) ∘ g#) := by
   simp
   intro H H0 H1 H2
   apply inc_antisym comp_capP_distr
-  rapply comp_inc_compat_b_ab H
-  rapply comp_inc_compat_a_ab H1
+  transby comp_inc_compat_b_ab H
+  transby comp_inc_compat_a_ab H1
   comp_inc
-  rapply comp_capP_distr
+  transby comp_capP_distr
   rw[inc_capP]
   intro h H3
-  rapply comp_inc_compat_ab_b H0
-  rapply comp_inc_compat_ab_a H2
+  transby comp_inc_compat_ab_b H0
+  transby comp_inc_compat_ab_a H2
   rw[← comp_assoc, ← comp_assoc]
   conv => rhs; rhs; rw[comp_assoc, comp_assoc]
   rw[comp_assoc]
@@ -187,18 +183,18 @@ theorem function_cap_distr {f:c.rel X Y} {g:c.rel W Z} {h a:c.rel Y Z} :
   simp
   intro H H0 H1 H2
   apply inc_antisym comp_cap_distr
-  rapply comp_inc_compat_b_ab H
-  rapply comp_inc_compat_a_ab H1
+  transby comp_inc_compat_b_ab H
+  transby comp_inc_compat_a_ab H1
   comp_inc
-  rapply comp_cap_distr
+  transby comp_cap_distr
   simp[inc_cap]
   constructor
   all_goals
-    rapply comp_inc_compat_ab_b H0
-    rapply comp_inc_compat_ab_a H2
-  · rapply cap_l
+    transby comp_inc_compat_ab_b H0
+    transby comp_inc_compat_ab_a H2
+  · transby cap_l
     comp_inc
-  · rapply cap_r
+  · transby cap_r
     comp_inc
 theorem function_cap_distr_l {f:c.rel X Y} {h a:c.rel Y Z} :
   is_function f → f ∘ (h ⊓ a) = (f ∘ h) ⊓ (f ∘ a) := by
@@ -219,10 +215,10 @@ theorem function_move1 {f:c.rel X Y} {g:c.rel Y Z} {h:c.rel X Z} :
   intro H H0
   constructor
   · intro H1
-    rapply comp_inc_compat_ab_b H0
+    transby comp_inc_compat_ab_b H0
     comp_inc
   · intro H1
-    rapply comp_inc_compat_b_ab H
+    transby comp_inc_compat_b_ab H
     comp_inc
 theorem function_move2 {f:c.rel X Y} {g:c.rel Y Z} {h:c.rel X Z} :
   is_function g → (f ∘ g ⊑ h ↔ f ⊑ h ∘ g#) := by
@@ -230,10 +226,10 @@ theorem function_move2 {f:c.rel X Y} {g:c.rel Y Z} {h:c.rel X Z} :
   intro H H0
   constructor
   · intro H1
-    rapply comp_inc_compat_a_ab H
+    transby comp_inc_compat_a_ab H
     comp_inc
   · intro H1
-    rapply comp_inc_compat_ab_a H0
+    transby comp_inc_compat_ab_a H0
     comp_inc
 
 theorem function_rpc_distr : is_function f → is_function g →
@@ -244,19 +240,20 @@ theorem function_rpc_distr : is_function f → is_function g →
   constructor
   · intro H1
     rw[inc_rpc]
-    rapply cap_inc_compat_r H1
+    transby cap_inc_compat_r H1
     rw[← function_cap_distr H H0]
     comp_inc
     simp[cap_comm, rpc_l]
   · intro H1
     rw[inc_rpc, ← function_move2 H0, function_move1 H] at H1
     rw[← function_move2 H0, function_move1 H, inc_rpc]
-    rapply dedekind
+    transby dedekind
     simp
-    rapply H1
-    myconv => lhs; lhs; apply cap_l
+    transby H1
+    transby (comp_inc_compat_ab_a'b (cap_l))
+    -- myconv => lhs; lhs; apply cap_l
     comp_inc
-    rapply dedekind
+    transby dedekind
     comp_inc
 
 theorem function_rpc_distr_l : is_function f → (f ∘ (α ⇒ β)) = ((f ∘ α) ⇒ (f ∘ β)) := by

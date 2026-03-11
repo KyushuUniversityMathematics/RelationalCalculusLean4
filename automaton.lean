@@ -192,13 +192,12 @@ theorem concat_nfaP (l : List σ){Q Q' : c.ob}(M : nfa σ Q)(M' : nfa σ Q') :
         cases u with
         | nil =>
           have Huv : v = a::l' := by simp[Huv]
-          myconv => rhs; apply cup_r
           simp[Huv, δstar]
         | cons b u' =>
           simp at Huv
           rw[← Huv.left]
-          myconv => rhs; apply cup_l
           simp[δstar]
+          apply inc_trans _ cup_l
           comp_inc
           apply (@cupP_inc _ _ _ _ _ _ id)
           exists u', v
@@ -221,9 +220,9 @@ theorem concat_nfaP (l : List σ){Q Q' : c.ob}(M : nfa σ Q)(M' : nfa σ Q') :
     · rw[inc_cupP]
       intro f ⟨u, v, H, H0⟩
       by_cases H1:v = []
-      · myconv => rhs; apply cup_l
+      · apply inc_trans _ cup_l
         simp[H0, acceptRel, H, H1, δstar]
-      · myconv => rhs; apply cup_r
+      · apply inc_trans _ cup_r
         simp[H0, acceptRel]
         comp_inc
         apply (@cupP_inc _ _ _ _ _ _ id)
@@ -335,7 +334,7 @@ theorem plus_nfaP (M:nfa σ Q):
           simp[flatten] at Hw'
           rw[← Hw']
           simp[δstar, plus_accept]
-          myconv => rhs; apply cup_l
+          apply inc_trans _ cup_l
           comp_inc
           apply (@cupP_inc _ _ _ _ _ _ id)
           exists w', []
@@ -358,7 +357,7 @@ theorem plus_nfaP (M:nfa σ Q):
               rw[← H]
               clear H
               simp[δstar, plus_accept, acceptRel]
-              myconv=> rhs; apply cup_r
+              apply inc_trans _ cup_r
               comp_inc
               apply (@cupP_inc _ _ _ _ _ _ id)
               exists h, l
@@ -368,7 +367,7 @@ theorem plus_nfaP (M:nfa σ Q):
               rw[← H]
               clear b H ih
               simp[δstar, plus_accept, acceptRel]
-              myconv => rhs; apply cup_l
+              apply inc_trans _ cup_l
               comp_inc
               apply (@cupP_inc _ _ _ _ _ _ id)
               exists u, (x::h)::l

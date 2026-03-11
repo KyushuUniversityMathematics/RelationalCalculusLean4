@@ -1,4 +1,5 @@
 import Dedekind_Axioms
+import Aesop
 import Std
 open Std
 
@@ -10,8 +11,8 @@ section Axioms
 @[simp] theorem comp_assoc {W:c.ob} (f : c.rel W X) (g : c.rel X Y) (h : c.rel Y Z) :
   f ∘ (g ∘ h) = (f ∘ g) ∘ h := by rw[← c.comp_assoc f g h]
 theorem acomp_l {x : c.rel X Y}{y : c.rel Y Z}{z : c.rel X Z} :
-  x ∘ y = z → ∀ w:c.rel W X, (w ∘ x) ∘ y = w ∘ z := by
-  intro H w
+  x ∘ y = z → (w ∘ x) ∘ y = w ∘ z := by
+  intro H
   rw[← comp_assoc, H]
 
 @[simp] theorem inc_refl (f : c.rel X Y) : f ⊑ f := c.inc_refl f
