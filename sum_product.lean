@@ -21,15 +21,19 @@ infixl:51 " + " => sum_ob
 def in_l (X Y:c.ob) : c.rel X (X + Y) := @c.in_l X Y
 def in_r (X Y:c.ob) : c.rel Y (X + Y) := @c.in_r X Y
 @[simp] theorem inl_id {X Y:c.ob}: in_l X Y ∘ in_l X Y # = idr X := @c.inl_id X Y
-@[simp] theorem inl_id_l : ∀ x:c.rel Z X, (x ∘ in_l X Y) ∘ in_l X Y # = x ∘ idr X := acomp_l inl_id
+@[simp] theorem inl_id_l {x:c.rel Z X} : (x ∘ in_l X Y) ∘ in_l X Y # = x := by
+  simp[acomp_l inl_id]
 @[simp] theorem inr_id {X Y:c.ob} : in_r X Y ∘ in_r X Y # = idr Y := @c.inr_id X Y
-@[simp] theorem inr_id_l : ∀ x:c.rel Z Y, (x ∘ in_r X Y) ∘ in_r X Y # = x ∘ idr Y := acomp_l inr_id
+@[simp] theorem inr_id_l {x:c.rel Z Y}: (x ∘ in_r X Y) ∘ in_r X Y # = x := by
+  simp[acomp_l inr_id]
 @[simp] theorem inl_inr_empty : in_l X Y ∘ (in_r X Y)# = φ X Y := c.inl_inr_empty
-@[simp] theorem inl_inr_empty_l : ∀ x:c.rel Z X, (x ∘ in_l X Y) ∘ in_r X Y # = x ∘ φ X Y := acomp_l inl_inr_empty
+@[simp] theorem inl_inr_empty_l {x:c.rel Z X}: (x ∘ in_l X Y) ∘ in_r X Y # = φ Z Y := by
+  simp[acomp_l inl_inr_empty]
 @[simp] theorem inr_inl_empty : in_r X Y ∘ (in_l X Y)# = φ Y X := by
   rw[← inv_invol (in_r _ _), ← comp_inv, inl_inr_empty]
   simp
-@[simp] theorem inr_inl_empty_l : ∀ x:c.rel Z Y, (x ∘ in_r X Y) ∘ in_l X Y # = x ∘ φ Y X := acomp_l inr_inl_empty
+@[simp] theorem inr_inl_empty_l {x:c.rel Z Y}: (x ∘ in_r X Y) ∘ in_l X Y # = φ Z X := by
+  simp[acomp_l inr_inl_empty]
 theorem inl_inr_cup_id : (in_l X Y)# ∘ in_l X Y ⊔ (in_r X Y)# ∘ in_r X Y = idr (X + Y) :=
   c.inl_inr_cup_id
 theorem inl_injective (X Y : c.ob) : is_injective (in_l X Y) := by
@@ -147,10 +151,10 @@ def snd (X Y : c.ob) : c.rel (X × Y) Y := c.snd X Y
   c.fst_snd_cap_id
 @[simp]theorem fst_snd_universal (X Y:c.ob) : (fst X Y)# ∘ snd X Y = Δ X Y :=
   c.fst_snd_universal
-@[simp]theorem fst_snd_universal_l  : ∀ x:c.rel Z X, (x ∘ fst X Y#) ∘ snd X Y = x ∘ Δ X Y := acomp_l (fst_snd_universal X Y)
+@[simp]theorem fst_snd_universal_l {x:c.rel Z X}  : (x ∘ fst X Y#) ∘ snd X Y = x ∘ Δ X Y := acomp_l (fst_snd_universal X Y)
 @[simp]theorem snd_fst_universal (X Y : c.ob) : (snd X Y)# ∘ fst X Y = Δ Y X := by
   rw[← inv_invol (_ ∘ _), comp_inv, inv_invol, fst_snd_universal, inv_universal]
-@[simp]theorem snd_fst_universal_l : ∀ x:c.rel Z Y, (x ∘ snd X Y#) ∘ fst X Y = x ∘ Δ Y X := acomp_l (snd_fst_universal X Y)
+@[simp]theorem snd_fst_universal_l {x:c.rel Z Y} : (x ∘ snd X Y#) ∘ fst X Y = x ∘ Δ Y X := acomp_l (snd_fst_universal X Y)
 theorem fst_function {X Y : c.ob} : is_function (fst X Y) := c.fst_function
 theorem snd_function {X Y : c.ob} : is_function (snd X Y) := c.snd_function
 noncomputable def rel_prod {X Y Z : c.ob}(f : c.rel Z X)(g : c.rel Z Y) : c.rel Z (X × Y) :=
@@ -429,7 +433,7 @@ def rational2 (α : c.rel X Y) : c.rel (rational_ob α) Y := c.rational2 α
   c.rational_cap_id α
 @[simp] theorem rational_comp{X Y : c.ob}(α : c.rel X Y) :
   (rational1 α)# ∘ rational2 α = α := c.rational_comp α
-@[simp] theorem rational_comp_l {X Y : c.ob}(f:c.rel X Y) : ∀ x:c.rel Z X,
+@[simp] theorem rational_comp_l {x:c.rel Z X}(f:c.rel X Y) :
   (x ∘ rational1 f#) ∘ rational2 f = x ∘ f := acomp_l (rational_comp f)
 theorem rational1_function (α : c.rel X Y) :
   is_function (rational1 α) := c.rational1_function α

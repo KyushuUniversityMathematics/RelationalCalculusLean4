@@ -1,4 +1,4 @@
-import Lean
+import Lean.Elab.Tactic
 import Dedekind
 open Lean Elab Tactic
 
@@ -25,8 +25,8 @@ elab "comp_inc": tactic => do
   else
     evalTactic (← `(tactic|
       repeat first
-        |simp
-        |grind
+      |assumption
+      |simp
     ))
 
 -- variable[c:Dedekind]

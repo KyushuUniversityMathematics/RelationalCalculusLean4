@@ -1,4 +1,4 @@
-import MyTac.rapply
+import MyTac.trans
 import MyTac.rconv
 import MyTac.comp_inc
 import MyTac.sort
