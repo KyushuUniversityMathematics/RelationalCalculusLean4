@@ -1,5 +1,4 @@
 import Cantor
-open Classical
 variable [c : Cantor]
 
 section definition
@@ -8,6 +7,8 @@ structure nfa(σ :Type)(Q : c.ob) where
   (τ : c.rel I Q)
   (δ : σ → c.rel Q Q)
   (β : c.rel Q I)
+
+def is_dfa {σ :Type}{Q : c.ob}(M : nfa σ Q) : Prop := is_function M.τ ∧ ∀s, is_function (M.δ s)
 
 def δstar {σ :Type}{Q : c.ob}(M : nfa σ Q)(l:List σ) : c.rel Q Q :=
   match l with
@@ -137,7 +138,8 @@ theorem concat_nfaP (l : List σ){Q Q' : c.ob}(M : nfa σ Q)(M' : nfa σ Q') :
       conv => rhs; lhs; rw[cup_comm, inl_inr_cup_id]
       rw[inc_def2l, cupP_False]
       simp
-      grind
+      intro f ⟨u, v, ⟨Hu, Hv⟩, hv, H⟩
+      contradiction
     | cons a l' ih =>
       simp[δstar]
       rw[ih, concat_nfa]
@@ -157,9 +159,10 @@ theorem concat_nfaP (l : List σ){Q Q' : c.ob}(M : nfa σ Q)(M' : nfa σ Q') :
             rcases H0 with ⟨u, v, Huv, vnil, H⟩
             induction u with
             | nil =>
-              grind
+              simp at Huv
+              contradiction
             | cons b u' ih =>
-              grind
+              contradiction
           · rw[comp_cupP_distr_l]
             rw[inc_cupP]
             intro f Hf
@@ -170,8 +173,7 @@ theorem concat_nfaP (l : List σ){Q Q' : c.ob}(M : nfa σ Q)(M' : nfa σ Q') :
             simp
             apply (@cupP_inc _ _ _ _ _ _ id)
             exists a::u, v
-            simp[δstar]
-            grind
+            simp_all[δstar]
         · comp_inc
           apply (@cupP_inc _ _ _ _ _ _ id)
           exists [], a::l'
@@ -189,20 +191,18 @@ theorem concat_nfaP (l : List σ){Q Q' : c.ob}(M : nfa σ Q)(M' : nfa σ Q') :
         clear H f
         cases u with
         | nil =>
-          have Huv : v = a::l' := by grind
+          have Huv : v = a::l' := by simp[Huv]
           myconv => rhs; apply cup_r
           simp[Huv, δstar]
         | cons b u' =>
-          have Hb : b = a := by grind
-          rw[Hb] at Huv ⊢
-          clear Hb b
+          simp at Huv
+          rw[← Huv.left]
           myconv => rhs; apply cup_l
           simp[δstar]
           comp_inc
           apply (@cupP_inc _ _ _ _ _ _ id)
           exists u', v
-          simp
-          grind
+          simp_all
   · rw[H]
     clear H
     simp[concat_nfa]
@@ -221,9 +221,8 @@ theorem concat_nfaP (l : List σ){Q Q' : c.ob}(M : nfa σ Q)(M' : nfa σ Q') :
     · rw[inc_cupP]
       intro f ⟨u, v, H, H0⟩
       by_cases H1:v = []
-      · have H2 : l = u := by grind
-        myconv => rhs; apply cup_l
-        simp[H0, acceptRel, H2, H1, δstar]
+      · myconv => rhs; apply cup_l
+        simp[H0, acceptRel, H, H1, δstar]
       · myconv => rhs; apply cup_r
         simp[H0, acceptRel]
         comp_inc
@@ -291,7 +290,7 @@ theorem plus_nfaP (M:nfa σ Q):
           by_cases H:v = []
           · simp[H] at Hnil
             simp[H, acceptRel, δstar]
-            rapply ih Hnil
+            transby ih Hnil
             conv => rhs; rw[← comp_id_r M.β]
             comp_inc
           · exfalso
@@ -345,7 +344,7 @@ theorem plus_nfaP (M:nfa σ Q):
           induction h with
           | nil =>
             simp[flatten, plus_accept, acceptRel, δstar] at Hw' ⊢
-            rapply ih Hw'
+            transby ih Hw'
             clear ih Hw' w'
             conv => rhs;lhs;rhs; rw [← comp_id_r M.β]
             comp_inc
@@ -424,7 +423,10 @@ theorem star_nfaP (M:nfa σ Q):
     apply eq_cupP
     intro x
     constructor
-    · grind
+    · intro ⟨y, H, l, H0, H1, H2⟩
+      exists y
+      simp[H]
+      exists l
     · intro H
       rcases H with ⟨y, H, l, H0, H1⟩
       exists x
@@ -436,4 +438,26 @@ theorem star_nfaP (M:nfa σ Q):
           contradiction
         |cons h l ih =>
           simp
-      · grind
+      · simp[H0, H, H1]
+
+def nfa_to_dfa{σ : Type}{Q:c.ob}(M:nfa σ Q) : nfa σ (𝒫 Q) :=
+  {
+    τ := (M.τ)ᶠ,
+    δ := fun a => (∋_Q ∘ M.δ a)ᶠ,
+    β := ∋_Q ∘ M.β
+  }
+
+theorem nfa_to_dfaP (M:nfa σ Q)(w:List σ):
+  nfa_to_dfa M ⟪ w ⟫ = M ⟪ w ⟫ ∧ is_dfa (nfa_to_dfa M):= by
+  constructor
+  · simp[acceptRel]
+    have h : δstar (nfa_to_dfa M) w ∘ (nfa_to_dfa M).β = ∋_Q ∘ (δstar M w ∘ M.β) := by
+      induction w with
+      | nil =>
+        simp[δstar, nfa_to_dfa]
+      | cons h w ih =>
+        simp[δstar, acomp_l ih]
+        simp[nfa_to_dfa, ← comp_assoc, rel_fun_def]
+    simp[acomp_l h]
+    simp[nfa_to_dfa, rel_fun_def]
+  · simp [nfa_to_dfa, is_dfa, rel_fun_spec, -is_function]

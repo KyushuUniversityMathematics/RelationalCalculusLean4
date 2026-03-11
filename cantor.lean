@@ -31,12 +31,12 @@ theorem rel_fun_spec {X Y:c.ob}(f : c.rel X Y) :
   is_function (fᶠ) := by
   constructor
   · rw[inc_def1r.mpr (inc_comp f)]
-    rapply dedekind
+    transby dedekind
     rw[rel_fun]
     simp
     sort
   · rw[rel_fun]
-    rapply comp_cap_distr_l
+    transby comp_cap_distr_l
     apply inc_trans
     · apply cap_inc_compat
       · simp
@@ -48,7 +48,7 @@ theorem rel_fun_spec {X Y:c.ob}(f : c.rel X Y) :
       · apply cap_inc_compat_r
         conv => lhs; rhs; rw[← inv_invol f]
         apply residual_property2
-      · rapply subset_cap_subid
+      · transby subset_cap_subid
         apply cap_inc_compat_l
         rw[inc_inv]
         conv => lhs; rhs; rw[← inv_invol f]
@@ -70,7 +70,7 @@ theorem rel_fun_def (f:c.rel X Y) : fᶠ ∘ (∋_ Y) = f := by
       rw[inv_inc_move]
       simp
       apply inv_residual_inc
-  · rapply comp_inc_compat_b_ab (rel_fun_spec f).left
+  · transby comp_inc_compat_b_ab (rel_fun_spec f).left
     comp_inc
     simp[rel_fun]
     myconv => lhs; lhs; apply cap_l
@@ -118,11 +118,11 @@ instance cantor_unit : Dedekind_Unit := by
   · intro h1
     apply c.notzeroP
     simp
-    rapply (rel_fun_spec (φ c.notzero ∅)).left
+    transby (rel_fun_spec (φ c.notzero ∅)).left
     rw[← comp_id_r (_ᶠ), ← h1]
     simp
   · apply inc_antisym (inc_universal _)
-    rapply subset_cap_subid
+    transby subset_cap_subid
     have H : subset ∅ = Δ (𝒫 ∅) (𝒫 ∅) := by
       apply inc_antisym (inc_universal _)
       rw[subset, ← comp_id_r (∋_ ∅), zero_def]
@@ -273,7 +273,7 @@ theorem symmetric_idempotent_def {θ:c.rel X X} :
       apply inc_antisym
       · simp[H]
       · simp_all[inv_inc_move]
-    grind
+    simp[H, H0]
   · intro H
     constructor
     · conv => lhs; rw[← H];simp;rw[H]
@@ -492,7 +492,7 @@ theorem complement'_cap_empty {u:c.rel X X}:
         rw[acomp_l H4, H1]
         simp
       · simp
-        rapply H7.right
+        transby H7.right
         conv => rhs;rhs; rw[← comp_id_l f, ← H5]
         comp_inc
         rw[← inl_inr_cup_id]
@@ -508,7 +508,7 @@ theorem complement'_cap_empty {u:c.rel X X}:
         rw[acomp_l H4, H2]
         simp
       · simp
-        rapply H7.right
+        transby H7.right
         conv => rhs;rhs; rw[← comp_id_l f, ← H5]
         comp_inc
         rw[← inl_inr_cup_id]
@@ -558,9 +558,9 @@ theorem complement'_cap_empty {u:c.rel X X}:
     · apply inc_antisym
       · simp_all[inc_cup]
         rw[← comp_assoc]
-        rapply H12
+        transby H12
         exact comp_inc_compat_ab_a H13
-      · rapply H9.left
+      · transby H9.left
         rw[← comp_id_r (x#), comp_assoc]
         myconv => lhs; rhs; apply H10.left
         conv => lhs; lhs; lhs; rw[← comp_id_r x, ← inl_inr_cup_id]; change x ∘ (l# ∘ l ⊔ r# ∘ r)
@@ -656,7 +656,7 @@ instance cantor_choice_schroder : Schroder := by
     intro H
     rw[← cap_universal h, ← H1, cap_cup_distr_l, inc_cup]
     simp
-    rapply H
+    transby H
     simp
   · intro H
     rw[complement, inc_rpc, ← H0, cap_comm]
